@@ -483,7 +483,7 @@ const checkPaynetCredentials = async() => {
 
 setTimeout(async() => {
     // sicreWebview.openDevTools();
-    runtWebview.openDevTools();
+    // runtWebview.openDevTools();
     // paynetWebview.openDevTools();
 }, 500);
 
