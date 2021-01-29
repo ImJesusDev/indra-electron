@@ -2,7 +2,6 @@ const { app, BrowserWindow, ipcMain } = require('electron')
 const { autoUpdater } = require('electron-updater');
 const { session } = require('electron')
 
-
 const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36';
 const filter = {
     urls: ['https://*.runt.com.co/*']

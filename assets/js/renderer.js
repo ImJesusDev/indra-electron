@@ -8,6 +8,8 @@ const runtWebview = document.getElementById('runt-webview');
 const paynetWebview = document.getElementById('paynet-webview');
 /* Sicre */
 const sicreWebview = document.getElementById('sicre-webview');
+/* File system */
+const fs = require('fs');
 
 let currentSicreState;
 let currentPaynetState;
@@ -98,8 +100,10 @@ sicreWebview.addEventListener('did-navigate', (event) => {
                 $('#status-report').html('');
                 $('#status-report').hide();
             }, 3000);
-            let url = localStorage.getItem('sicre-url');
-            $('#sicre-webview').attr('src', url);
+            const data = fs.readFileSync('settings/settings.json');
+            const json = data.toString('utf8');
+            settings = JSON.parse(json);
+            $('#sicre-webview').attr('src', settings.SICRE_URL);
             $('#paynet-step').removeClass('done');
             $('#runt-step').removeClass('done');
             $('#initial-step').addClass('current').removeClass('done');
@@ -251,57 +255,27 @@ function showForm() {
     formData = new FormData();
     formData.append('username', sicovUsername.val());
     formData.append('password', sicovPassword.val());
-    $.ajax({
-        type: "POST",
-        url: 'https://indra.movers-systems.com/api/login',
-        data: formData,
-        error: (request, status, error) => {
-            if (status === 'error') {
-                if (error === 'Bad Request') {
-                    $('#status-report').html('');
-                    $('#status-report').addClass('error-msg');
-                    var statusContent = `<span>${request.responseJSON.error}</span>`;
-                    $('#status-report').append(statusContent);
-                    setTimeout(() => {
-                        $('#status-report').html('');
-                        $('#status-report').removeClass('error-msg');
-                        $('#status-report').hide();
-                    }, 4000);
-                }
-            }
-        },
-        success: (response, status, jqXHQ) => {
-            $('#status-report').html('');
-            $('#status-report').hide();
-            if (status === 'success') {
-                $('#login-container').hide();
-                $('#form-container').css("display", "flex");
-                /* Store the value of the selected vehicle type */
-                const sicovUsername = $('#sicov-username');
-                const sicovPassword = $('#sicov-password');
-                const paynetUsername = $('#paynet-username');
-                const paynetPassword = $('#paynet-password');
-                const paynetCredentials = {
-                    username: paynetUsername.val(),
-                    password: paynetPassword.val()
-                };
-                $('#header-user').text(sicovUsername.val());
-                localStorage.setItem('paynet-credentials', JSON.stringify(paynetCredentials));
-                localStorage.setItem('sicov-username', sicovUsername.val());
-                localStorage.setItem('sicov-password', sicovPassword.val());
-                localStorage.setItem('auth-token', response.token);
-                localStorage.setItem('sicre-url', response.url);
-                $('#sicre-webview').attr('src', response.url);
+    $('#status-report').html('');
+    $('#status-report').hide();
+    $('#login-container').hide();
+    $('#form-container').css("display", "flex");
+    /* Store the value of the selected vehicle type */
+    const paynetUsername = $('#paynet-username');
+    const paynetPassword = $('#paynet-password');
+    const paynetCredentials = {
+        username: paynetUsername.val(),
+        password: paynetPassword.val()
+    };
+    $('#header-user').text(sicovUsername.val());
+    localStorage.setItem('paynet-credentials', JSON.stringify(paynetCredentials));
+    localStorage.setItem('sicov-username', sicovUsername.val());
+    localStorage.setItem('sicov-password', sicovPassword.val());
+    // localStorage.setItem('auth-token', response.token);
+    const sicreUrl = localStorage.getItem('sicre-url');
+    $('#sicre-webview').attr('src', sicreUrl);
+    
 
-
-            }
-
-        },
-        processData: false, // tell jQuery not to process the data
-        contentType: false // tell jQuery not to set contentType
-    });
-
-};
+}
 
 const sendVehicleData = async() => {
     const documentType = localStorage.getItem('document-type');
