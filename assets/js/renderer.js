@@ -457,7 +457,7 @@ const checkPaynetCredentials = async() => {
 
 setTimeout(async() => {
     // sicreWebview.openDevTools();
-    runtWebview.openDevTools();
+    // runtWebview.openDevTools();
     // paynetWebview.openDevTools();
 }, 500);
 
@@ -600,6 +600,9 @@ ipc.on('vehicleData', (event, props) => {
 
     if (props.type === 'done') {
         console.log('done', props);
+        localStorage.setItem('license', props.data.license);
+        localStorage.setItem('vehicleClass', props.data.vehicleClass);
+        localStorage.setItem('technicalData', props.data.technicalData);
         setTimeout(async() => {
             console.log('inside async', props);
             $('#status-report').html('');
@@ -614,6 +617,7 @@ ipc.on('vehicleData', (event, props) => {
                     <li> Modelo: ${props.data.model} </li>
                     <li> Color: ${props.data.color}</li>
                     <li> Linea:${props.data.line} </li>
+                    <li> Licensia:${props.data.licensia} </li>
                     <li> Estado de Vehículo: ${props.data.state}</li>
                     <li> Estado Soat: ${props.data.soat} </li>
                     <li> Estado Ultima Solicitud: ${props.data.lastRequest.lastRequestState}</li>

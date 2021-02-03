@@ -15,7 +15,6 @@ ipc.on('runt-form-data', async(event, props) => {
     userDocumentType = props.documentType;
     /* Plate input */
     let plateInput = $('#noPlaca');
-    console.log('hereeee', userVehiclePlate);
     plateInput.val(userVehiclePlate);
     plateInput.trigger('input');
 
@@ -52,16 +51,36 @@ document.addEventListener('DOMContentLoaded', async(event) => {
                     let theLine = await getVehicleLine();
                     let theColor = await getVehicleColor();
                     let theState = await getVehicleState();
+                    let license = await getLicense();
+                    let vehicleClass = await getVehicleClass();
+                    let serviceType = await getServiceType();
+                    let motorNumber = await getMotorNumber();
+                    let chasisNumber = await getChasisNumber();
+                    let cylinderCapacity = await getCylinderCapacity();
+                    let fuelType = await getFuelType();
+                    let vinNumber = await getVinNumber();
+                    let plateDate = await getPlateDate();
                     await sendData('vehicleInfo', {
+                        chasisNumber: chasisNumber,
+                        cylinderCapacity: cylinderCapacity,
+                        plateDate: plateDate,
                         make: theMake,
                         model: theModel,
                         line: theLine,
                         color: theColor,
                         state: theState,
+                        license: license,
+                        vehicleClass: vehicleClass,
+                        serviceType: serviceType,
+                        motorNumber: motorNumber,
+                        fuelType: fuelType,
+                        vinNumber: vinNumber
                     });
 
                     let soatInfo = await getSoatInfo();
+                    let armoredInfo = await getArmoredInfo();
                     let lastRequestInfo = await getRequestInfo();
+                    let technicalData = await getTechnicalData();
 
                     await sendData('otherInfo', {
                         soat: soatInfo,
@@ -75,7 +94,18 @@ document.addEventListener('DOMContentLoaded', async(event) => {
                         color: theColor,
                         state: theState,
                         soat: soatInfo,
-                        lastRequest: lastRequestInfo
+                        technicalData: technicalData,
+                        lastRequest: lastRequestInfo,
+                        license: license,
+                        plateDate: plateDate,
+                        vehicleClass: vehicleClass,
+                        serviceType: serviceType,
+                        motorNumber: motorNumber,
+                        fuelType: fuelType,
+                        vinNumber: vinNumber,
+                        chasisNumber: chasisNumber,
+                        cylinderCapacity: cylinderCapacity,
+                        armoredInfo: armoredInfo
                     });
                     // await newRequest();
 
@@ -147,6 +177,61 @@ const getVehicleColor = async() => {
     return vehicleColor.trim();
 };
 
+const getMotorNumber = async() => {
+
+    /* Get the Motor number of the vehicle */
+    let motorXpath = "//label[text()='Número de motor:']";
+    let matchingMotorElement = document.evaluate(motorXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentMotorDiv = matchingMotorElement.parentElement;
+    let vehicleMotor = parentMotorDiv.nextElementSibling.textContent;
+    return vehicleMotor.trim();
+};
+const getChasisNumber = async() => {
+
+    /* Get the Chasis number of the vehicle */
+    let chasisXpath = "//label[text()='Número de chasis:']";
+    let matchingChasisElement = document.evaluate(chasisXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentChasisDiv = matchingChasisElement.parentElement;
+    let vehicleChasis = parentChasisDiv.nextElementSibling.textContent;
+    return vehicleChasis.trim();
+};
+const getPlateDate = async() => {
+
+    /* Get the plate date of the vehicle */
+    let plateDateXpath = "//label[text()='Fecha de Matricula Inicial(dd/mm/aaaa):']";
+    let matchingPlateDateElement = document.evaluate(plateDateXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentPlateDateDiv = matchingPlateDateElement.parentElement;
+    let vehiclePlateDate = parentPlateDateDiv.nextElementSibling.textContent;
+    return vehiclePlateDate.trim();
+};
+
+const getCylinderCapacity = async() => {
+    /* Get the cylinder capacity of the vehicle */
+    let cylinderXpath = "//label[text()='Cilindraje:']";
+    let matchingCylinderElement = document.evaluate(cylinderXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentCylinderDiv = matchingCylinderElement.parentElement;
+    let vehicleCylinder = parentCylinderDiv.nextElementSibling.textContent;
+    return vehicleCylinder.trim();
+};
+const getFuelType = async() => {
+    /* Get the fuel type of the vehicle */
+    let fuelXpath = "//label[text()='Tipo Combustible:']";
+    let matchingFuelElement = document.evaluate(fuelXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentFuelDiv = matchingFuelElement.parentElement;
+    let vehicleFuel = parentFuelDiv.nextElementSibling.textContent;
+    return vehicleFuel.trim();
+};
+
+const getVinNumber = async() => {
+
+    /* Get the Vin number of the vehicle */
+    let vinXpath = "//label[text()='Número de VIN:']";
+    let matchingVinElement = document.evaluate(vinXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentVinDiv = matchingVinElement.parentElement;
+    let vehicleVin = parentVinDiv.nextElementSibling.textContent;
+    return vehicleVin.trim();
+};
+
 const getSoatInfo = async() => {
     return new Promise((resolve) => {
         /* Soat */
@@ -160,9 +245,83 @@ const getSoatInfo = async() => {
             let parentSoatDiv = matchingSoatElement.parentElement;
             soatState = parentSoatDiv.parentElement.nextElementSibling.childNodes[2].childNodes[11].childNodes[4].textContent;
             resolve(soatState.trim());
-        }, 300);
+        }, 1000);
     });
 };
+
+const getTechnicalData = async() => {
+    return new Promise((resolve) => {
+        /* Technical data tab */
+        let dataTabXpath = "//a[text()=' Datos Técnicos  del Vehículo']";
+        let dataTab = document.evaluate(dataTabXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        dataTab.click();
+        let totalSeats = '';
+        let totalLoad = ''
+        let totalWeight = ''
+        let totalAxis = ''
+        let totalPassengers = ''
+        setTimeout(() => {
+            // Cant sillas
+            let totalSeatsXpath = "//label[text()='Capacidad Pasajeros Sentados:']";
+            let matchingSeatsElement = document.evaluate(totalSeatsXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parentSeatDiv = matchingSeatsElement.parentElement;
+            totalSeats = parentSeatDiv.nextElementSibling.textContent
+            // Capacidad pasajeros
+            let totalPassengersXpath = "//label[text()='Capacidad de Pasajeros:']";
+            let matchingPassengersElement = document.evaluate(totalPassengersXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parentPassengerDiv = matchingPassengersElement.parentElement;
+            totalPassengers = parentPassengerDiv.nextElementSibling.textContent
+            // Capacidad de Carga
+            let totalLoadXpath = "//label[text()='Capacidad de Carga:']";
+            let matchingLoadElement = document.evaluate(totalLoadXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parentLoadDiv = matchingLoadElement.parentElement;
+            totalLoad = parentLoadDiv.nextElementSibling.textContent
+            // Peso Bruto
+            let totalWeightXpath = "//label[text()='Peso Bruto Vehicular:']";
+            let matchingWeightElement = document.evaluate(totalWeightXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parentWeightDiv = matchingWeightElement.parentElement;
+            totalWeight = parentWeightDiv.nextElementSibling.textContent
+            // CantEjes
+            let totalAxisXpath = "//label[text()='Número de ejes:']";
+            let matchingAxisElement = document.evaluate(totalAxisXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parentAxisDiv = matchingAxisElement.parentElement;
+            totalAxis = parentAxisDiv.nextElementSibling.textContent
+            resolve({
+                totalSeats: totalSeats.trim(),
+                totalLoad: totalLoad.trim(),
+                totalWeight: totalWeight.trim(),
+                totalAxis:totalAxis.trim(),
+                totalPassengers: totalPassengers.trim()
+            });
+        }, 1000);
+    });
+};
+
+const getVehicleClass = async() => {
+    /* Get the vehicleClass number */
+    let vehicleClassXpath = "//label[text()='Clase de vehículo:']";
+    let matchingClassElement = document.evaluate(vehicleClassXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentClassDiv = matchingClassElement.parentElement;
+    let vehicleClass = parentClassDiv.nextElementSibling.textContent;
+    return vehicleClass.trim();
+};
+const getServiceType = async() => {
+    /* Get the vehicleClass number */
+    let serviceTypeXpath = "//label[text()='Tipo de servicio:']";
+    let matchingTypeElement = document.evaluate(serviceTypeXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentTypeDiv = matchingTypeElement.parentElement;
+    let serviceType = parentTypeDiv.nextElementSibling.textContent;
+    return serviceType.trim();
+};
+
+const getLicense = async () => {
+    /* Get the license number */
+    let licenseXpath = "//label[text()='Nro. de licencia de tránsito:']";
+    let matchingLicenseElement = document.evaluate(licenseXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentLicenseDiv = matchingLicenseElement.parentElement;
+    let license = parentLicenseDiv.nextElementSibling.textContent;
+    return license.trim();
+}
 
 const getVehicleState = async() => {
     /* Get the state of the vehicle */
@@ -190,6 +349,33 @@ const getRequestInfo = async() => {
             resolve({
                 lastRequestState: lastRequestState.trim(),
                 lastRequestEntity: lastRequestEntity.trim()
+            });
+        }, 1000);
+    });
+};
+
+const getArmoredInfo = async() => {
+    return new Promise((resolve) => {
+        /*  Requests */
+        let armoredTabXpath = "//a[text()=' Información Blindaje']";
+        let armored = document.evaluate(armoredTabXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+        armored.click();
+        let isArmored = '';
+        let armorLevel = '';
+        setTimeout(() => {
+            // Es blindado
+            let isArmoredXpath = "//label[text()='Blindado:']";
+            let matchingArmoredElement = document.evaluate(isArmoredXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parentArmoredDiv = matchingArmoredElement.parentElement;
+            isArmored = parentArmoredDiv.nextElementSibling.textContent
+            // Nivel de blindaje
+            let armorLevelXpath = "//label[text()='Nivel de blindaje:']";
+            let matchingArmorElement = document.evaluate(armorLevelXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parentArmorDiv = matchingArmorElement.parentElement;
+            armorLevel = parentArmorDiv.nextElementSibling.textContent
+            resolve({
+                isArmored: isArmored.trim(),
+                armorLevel: armorLevel.trim()
             });
         }, 1000);
     });
