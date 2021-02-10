@@ -39,6 +39,11 @@ document.addEventListener('DOMContentLoaded', async(event) => {
             let xpath = "//button[text()='Consultar Información']";
 
             let matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            //cxpath procedencia
+            let xpathP = "//label[text()='Procedencia:']";
+            let matchingElementP = document.evaluate(xpathP, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let procedencia = matchingElementP.parentElement.parentElement.nextElementSibling.childNodes[1].childNodes[3].value;
+            console.log(procedencia);
 
             /* Add Event on click for the button */
             matchingElement.addEventListener("click", async() => {
@@ -56,6 +61,7 @@ document.addEventListener('DOMContentLoaded', async(event) => {
                     let serviceType = await getServiceType();
                     let motorNumber = await getMotorNumber();
                     let chasisNumber = await getChasisNumber();
+                    let serieNumber = await getSerieNumber();
                     let cylinderCapacity = await getCylinderCapacity();
                     let fuelType = await getFuelType();
                     let vinNumber = await getVinNumber();
@@ -74,7 +80,9 @@ document.addEventListener('DOMContentLoaded', async(event) => {
                         serviceType: serviceType,
                         motorNumber: motorNumber,
                         fuelType: fuelType,
-                        vinNumber: vinNumber
+                        vinNumber: vinNumber,
+                        procedencia: procedencia,
+                        serieNumber: serieNumber
                     });
 
                     let soatInfo = await getSoatInfo();
@@ -105,7 +113,9 @@ document.addEventListener('DOMContentLoaded', async(event) => {
                         vinNumber: vinNumber,
                         chasisNumber: chasisNumber,
                         cylinderCapacity: cylinderCapacity,
-                        armoredInfo: armoredInfo
+                        armoredInfo: armoredInfo,
+                        procedencia: procedencia,
+                        serieNumber: serieNumber
                     });
                     // await newRequest();
 
@@ -195,6 +205,15 @@ const getChasisNumber = async() => {
     let vehicleChasis = parentChasisDiv.nextElementSibling.textContent;
     return vehicleChasis.trim();
 };
+const getSerieNumber = async() => {
+
+    /* Get the Serie number of the vehicle */
+    let serieXpath = "//label[text()='Número de serie:']";
+    let matchingSerieElement = document.evaluate(serieXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+    let parentSerieDiv = matchingSerieElement.parentElement;
+    let vehicleSerie = parentSerieDiv.nextElementSibling.textContent;
+    return vehicleSerie.trim();
+};
 const getPlateDate = async() => {
 
     /* Get the plate date of the vehicle */
@@ -266,22 +285,22 @@ const getTechnicalData = async() => {
             let matchingSeatsElement = document.evaluate(totalSeatsXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentSeatDiv = matchingSeatsElement.parentElement;
             totalSeats = parentSeatDiv.nextElementSibling.textContent
-            // Capacidad pasajeros
+                // Capacidad pasajeros
             let totalPassengersXpath = "//label[text()='Capacidad de Pasajeros:']";
             let matchingPassengersElement = document.evaluate(totalPassengersXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentPassengerDiv = matchingPassengersElement.parentElement;
             totalPassengers = parentPassengerDiv.nextElementSibling.textContent
-            // Capacidad de Carga
+                // Capacidad de Carga
             let totalLoadXpath = "//label[text()='Capacidad de Carga:']";
             let matchingLoadElement = document.evaluate(totalLoadXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentLoadDiv = matchingLoadElement.parentElement;
             totalLoad = parentLoadDiv.nextElementSibling.textContent
-            // Peso Bruto
+                // Peso Bruto
             let totalWeightXpath = "//label[text()='Peso Bruto Vehicular:']";
             let matchingWeightElement = document.evaluate(totalWeightXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentWeightDiv = matchingWeightElement.parentElement;
             totalWeight = parentWeightDiv.nextElementSibling.textContent
-            // CantEjes
+                // CantEjes
             let totalAxisXpath = "//label[text()='Número de ejes:']";
             let matchingAxisElement = document.evaluate(totalAxisXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentAxisDiv = matchingAxisElement.parentElement;
@@ -290,7 +309,7 @@ const getTechnicalData = async() => {
                 totalSeats: totalSeats.trim(),
                 totalLoad: totalLoad.trim(),
                 totalWeight: totalWeight.trim(),
-                totalAxis:totalAxis.trim(),
+                totalAxis: totalAxis.trim(),
                 totalPassengers: totalPassengers.trim()
             });
         }, 1000);
@@ -314,7 +333,7 @@ const getServiceType = async() => {
     return serviceType.trim();
 };
 
-const getLicense = async () => {
+const getLicense = async() => {
     /* Get the license number */
     let licenseXpath = "//label[text()='Nro. de licencia de tránsito:']";
     let matchingLicenseElement = document.evaluate(licenseXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
@@ -368,7 +387,7 @@ const getArmoredInfo = async() => {
             let matchingArmoredElement = document.evaluate(isArmoredXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentArmoredDiv = matchingArmoredElement.parentElement;
             isArmored = parentArmoredDiv.nextElementSibling.textContent
-            // Nivel de blindaje
+                // Nivel de blindaje
             let armorLevelXpath = "//label[text()='Nivel de blindaje:']";
             let matchingArmorElement = document.evaluate(armorLevelXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentArmorDiv = matchingArmorElement.parentElement;

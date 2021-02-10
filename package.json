@@ -1,6 +1,6 @@
 {
     "name": "Indra",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "description": "Electron project",
     "main": "index.js",
     "repository": {
@@ -21,6 +21,7 @@
     },
     "dependencies": {
         "electron-updater": "^4.3.5",
+        "moment": "^2.29.1",
         "sweetalert2": "^10.7.0"
     }
 }

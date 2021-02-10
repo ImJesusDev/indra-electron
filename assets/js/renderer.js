@@ -2,6 +2,8 @@
 const { ipcRenderer: ipc } = require('electron');
 /* Alerts */
 const Swal = require('sweetalert2');
+
+const moment = require('moment');
 /* Runt */
 const runtWebview = document.getElementById('runt-webview');
 /* Paynet */
@@ -10,6 +12,7 @@ const paynetWebview = document.getElementById('paynet-webview');
 const sicreWebview = document.getElementById('sicre-webview');
 /* File system */
 const fs = require('fs');
+
 
 let currentSicreState;
 let currentPaynetState;
@@ -273,7 +276,7 @@ function showForm() {
     // localStorage.setItem('auth-token', response.token);
     const sicreUrl = localStorage.getItem('sicre-url');
     $('#sicre-webview').attr('src', sicreUrl);
-    
+
 
 }
 
@@ -453,7 +456,69 @@ const checkPaynetCredentials = async() => {
     // }
 
 };
+const submitData = async(data) => {
+    $('#status-report').show();
+    $('#status-report').html('');
+    var statusContent = '<span>Sincronizando información</span>';
+    $('#status-report').append(statusContent);
+    const plate = localStorage.getItem('plate');
+    const formData = {
+        parametro: {
+            "placa": plate,
+            "Procedencia": data.procedencia,
+            "TipoServicio": data.serviceType,
+            "Clase": data.vehicleClass,
+            "Licencia": data.license,
+            "Marca": data.make,
+            "Linea": data.line,
+            "Modelo": data.model,
+            "CantSillas": data.technicalData.totalSeats,
+            "Color": data.color,
+            "Serie": data.serieNumber,
+            "MotorNo": data.motorNumber,
+            "Chasis": data.chasisNumber,
+            "VIN": data.vinNumber,
+            "Cilindraje": data.cylinderCapacity,
+            "Combustible": data.fuelType,
+            "FechaMatricula": moment(data.plateDate, "DD/MM/YYYY").format("YYYY-MM-DD"),
+            "CapacidadCarga": data.technicalData.totalLoad ? data.technicalData.totalLoad : "0",
+            "PesoBruto": data.technicalData.totalWeight,
+            "CapacidadPasajeros": data.technicalData.totalPassengers ? data.technicalData.totalPassengers : "0",
+            "CantEjes": data.technicalData.totalAxis,
+            "Blindado": data.armoredInfo.isArmored,
+            "NivelBlindaje": data.armoredInfo.armorLevel
+        }
+    };
+    console.log(formData);
 
+    $.ajax({
+        type: "POST",
+        url: 'http://172.17.4.130:57209/rest/revisionesrestful/setInfoVehiculo',
+        data: JSON.stringify(formData),
+        contentType: 'application/json',
+        dataType: 'json',
+        error: (request, status, error) => {
+            $('#status-report').show();
+            $('#status-report').html('');
+            var statusContent = '<span>Error sincronizando Información</span>';
+            $('#status-report').append(statusContent);
+            setTimeout(() => {
+                $('#status-report').html('');
+                $('#status-report').hide();
+            }, 3000);
+        },
+        success: (response, status, jqXHQ) => {
+            $('#status-report').show();
+            $('#status-report').html('');
+            var statusContent = '<span>Información sincronizada exitosamente</span>';
+            $('#status-report').append(statusContent);
+            setTimeout(() => {
+                $('#status-report').html('');
+                $('#status-report').hide();
+            }, 3000);
+        }
+    });
+};
 
 setTimeout(async() => {
     // sicreWebview.openDevTools();
@@ -600,11 +665,12 @@ ipc.on('vehicleData', (event, props) => {
 
     if (props.type === 'done') {
         console.log('done', props);
+        submitData(props.data);
         localStorage.setItem('license', props.data.license);
         localStorage.setItem('vehicleClass', props.data.vehicleClass);
         localStorage.setItem('technicalData', props.data.technicalData);
         setTimeout(async() => {
-            console.log('inside async', props);
+            // console.log('inside async', props);
             $('#status-report').html('');
             $('#status-report').hide();
             Swal.fire({
@@ -671,5 +737,7 @@ ipc.on('vehicleData', (event, props) => {
     // });
 
     // $('#form-container').show();
+
+
 
 });
