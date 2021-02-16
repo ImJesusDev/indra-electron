@@ -1,3 +1,4 @@
 {
-    "SICRE_URL": "http://172.17.4.130:8055/Default"
+    "SICRE_URL": "http://172.17.4.130:8055/Default",
+    "SYNC_URL": "http://172.17.4.130:57209/rest/revisionesrestful/setInfoVehiculo"
 }

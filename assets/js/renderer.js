@@ -19,7 +19,8 @@ let currentPaynetState;
 
 paynetWebview.addEventListener('did-stop-loading', async(event) => {
     if (currentPaynetState.indexOf('login') >= 0) {
-        await checkPaynetCredentials();
+        // await checkPaynetCredentials();
+        paynetWebview.send('checkForErrors', true);
     }
     if (currentPaynetState.indexOf('VentaPin') >= 0) {
         paynetWebview.send('add-listeners', true);
@@ -72,6 +73,13 @@ sicreWebview.addEventListener('did-stop-loading', (event) => {
 ipc.on('info-entered', (event, props) => {
     $('#status-report').html('');
     var statusContent = '<span>Por favor, verifique la información, y haga click en Formalizar Revisión!</span>';
+    $('#status-report').append(statusContent);
+    $('#status-report').show();
+});
+
+ipc.on('paynetLoginError', (event, props) => {
+    $('#status-report').html('');
+    var statusContent = '<span>Por favor verifique sus credenciales, y haga click en enviar!</span>';
     $('#status-report').append(statusContent);
     $('#status-report').show();
 });
@@ -457,6 +465,12 @@ const checkPaynetCredentials = async() => {
 
 };
 const submitData = async(data) => {
+    //Get Settings
+    const settingsData = fs.readFileSync('settings/settings.json');
+    const json = settingsData.toString('utf8');
+    settings = JSON.parse(json);
+    console.log(settings.SICRE_URL);
+
     $('#status-report').show();
     $('#status-report').html('');
     var statusContent = '<span>Sincronizando información</span>';
@@ -493,7 +507,7 @@ const submitData = async(data) => {
 
     $.ajax({
         type: "POST",
-        url: 'http://172.17.4.130:57209/rest/revisionesrestful/setInfoVehiculo',
+        url: settings.SYNC_URL,
         data: JSON.stringify(formData),
         contentType: 'application/json',
         dataType: 'json',
@@ -525,6 +539,12 @@ setTimeout(async() => {
     // runtWebview.openDevTools();
     // paynetWebview.openDevTools();
 }, 500);
+
+ipc.on('updateCredentials', (event, props) => {
+    console.log(props);
+    localStorage.setItem('paynet-credentials', JSON.stringify(props));
+});
+
 
 ipc.on('revision-finished', (event, props) => {
     console.log('finished');
@@ -683,7 +703,7 @@ ipc.on('vehicleData', (event, props) => {
                     <li> Modelo: ${props.data.model} </li>
                     <li> Color: ${props.data.color}</li>
                     <li> Linea:${props.data.line} </li>
-                    <li> Licensia:${props.data.licensia} </li>
+                    <li> Licencia:${props.data.license} </li>
                     <li> Estado de Vehículo: ${props.data.state}</li>
                     <li> Estado Soat: ${props.data.soat} </li>
                     <li> Estado Ultima Solicitud: ${props.data.lastRequest.lastRequestState}</li>
@@ -697,7 +717,7 @@ ipc.on('vehicleData', (event, props) => {
                 cancelButtonText: 'Cancelar'
             }).then(async(result) => {
                 if (result.isConfirmed) {
-                    paynetWebview.send('navigate-to-pin', true);
+                    // paynetWebview.send('navigate-to-pin', true);
                     $('#status-report').show();
                     $('#status-report').html('');
                     var statusContent = '<span>Cargando Paynet</span>';

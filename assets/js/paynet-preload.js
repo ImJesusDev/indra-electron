@@ -1,10 +1,32 @@
 const { ipcRenderer: ipc } = require('electron');
 const path = require('path')
+ipc.on('checkForErrors', async(event, props) => {
+    let errors = document.getElementById('ctl00_cph_divlblError');
+    if (errors) {
+        let message = errors.textContent.trim();
+        if (message.indexOf('no son correctos') >= 0) {
+            ipc.sendTo(1, 'paynetLoginError', true);
+            let loginBtn = document.getElementById('ctl00_cph_StormLogin_LoginButton');
+            loginBtn.addEventListener('click', async() => {
+                console.log('Login btn clicked');
+                const username = $('#ctl00_cph_StormLogin_UserName').val();
+                const password = $('#ctl00_cph_StormLogin_Password').val();
+                const credentials = {
+                    username,
+                    password
+                }
+                ipc.sendTo(1, 'updateCredentials', credentials);
 
+            });
+            console.log('credential errors');
+        }
+    }
+});
 
 ipc.on('paynetCredentials', async(event, props) => {
     console.log('paynetCredentials');
     if (window.location.href === 'https://indra.paynet.com.co:14443/login.aspx') {
+
         ipc.sendTo(1, 'paynetLogin', true);
         // window.$ = window.jQuery = require(path.join(__dirname, '/jquery-3.5.1.min.js'));
         await setUsername(props.username);
@@ -230,6 +252,7 @@ const setPassword = async(password) => {
 };
 
 const login = async() => {
+    console.log('login');
     const loginBtn = $('#ctl00_cph_StormLogin_LoginButton');
     const rememberInput = document.getElementById('ctl00_cph_StormLogin_RememberMe');
     rememberInput.checked = true;
