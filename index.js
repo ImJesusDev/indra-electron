@@ -1,8 +1,10 @@
 const { app, BrowserWindow, ipcMain } = require('electron')
 const { autoUpdater } = require('electron-updater');
 const { session } = require('electron')
+const randomUseragent = require('random-useragent');
 
-const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.163 Safari/537.36';
+const userAgent = randomUseragent.getRandom();
+console.log('user agent: ', userAgent);
 const filter = {
     urls: ['https://*.runt.com.co/*']
 }
@@ -30,6 +32,8 @@ function createWindow() {
 
     //HKQ558
     //51914792
+    //123123123
+    //Paynet2020*
 }
 
 

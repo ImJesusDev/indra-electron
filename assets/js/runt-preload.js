@@ -359,15 +359,18 @@ const getRequestInfo = async() => {
         requests.click();
         let lastRequestState = '';
         let lastRequestEntity = '';
+        let lastRequestDate = '';
         setTimeout(() => {
             let requestXpath = "//th[text()='Entidad']";
             let matchingRequestElement = document.evaluate(requestXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             let parentRequestDiv = matchingRequestElement.parentElement;
+            lastRequestDate = parentRequestDiv.parentElement.nextElementSibling.childNodes[2].childNodes[3].textContent;
             lastRequestState = parentRequestDiv.parentElement.nextElementSibling.childNodes[2].childNodes[5].textContent;
             lastRequestEntity = parentRequestDiv.parentElement.nextElementSibling.childNodes[2].childNodes[9].textContent;
             resolve({
                 lastRequestState: lastRequestState.trim(),
-                lastRequestEntity: lastRequestEntity.trim()
+                lastRequestEntity: lastRequestEntity.trim(),
+                lastRequestDate: lastRequestDate.trim()
             });
         }, 1000);
     });

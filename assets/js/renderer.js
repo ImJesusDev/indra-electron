@@ -16,11 +16,14 @@ const fs = require('fs');
 
 let currentSicreState;
 let currentPaynetState;
-
+let data = fs.readFileSync('settings/settings.json');
+let json = data.toString('utf8');
+settings = JSON.parse(json);
+$('#sicre-webview').attr('src', settings.SICRE_URL);
 paynetWebview.addEventListener('did-stop-loading', async(event) => {
     if (currentPaynetState.indexOf('login') >= 0) {
-        // await checkPaynetCredentials();
-        paynetWebview.send('checkForErrors', true);
+        await checkPaynetCredentials();
+        // paynetWebview.send('checkForErrors', true);
     }
     if (currentPaynetState.indexOf('VentaPin') >= 0) {
         paynetWebview.send('add-listeners', true);
@@ -246,8 +249,7 @@ function logout() {
     }).then(async(result) => {
         if (result.isConfirmed) {
             localStorage.clear();
-            $('#login-container').css("display", "flex");
-            $('#form-container').hide();
+            showInitialForm();
         }
     });
 
@@ -380,8 +382,17 @@ function selectRevision(id) {
 
 function showInitialForm() {
     $('#initial-form').css('display', 'flex');
+    $('#status-report').html('');
+    $('#status-report').hide();
     $('#progress-bar').show();
     $('#failed-revisions').hide();
+    $('#runt-webview').hide();
+    $('#paynet-webview').hide();
+    $('#sicre-webview').hide();
+    $('#paynet-step').removeClass('done');
+    $('#runt-step').removeClass('done');
+    $('#sicre-step').removeClass('done');
+    $('#initial-step').addClass('current').removeClass('done');
 }
 
 function showFailedRevisions() {
@@ -469,12 +480,12 @@ const submitData = async(data) => {
     const settingsData = fs.readFileSync('settings/settings.json');
     const json = settingsData.toString('utf8');
     settings = JSON.parse(json);
-    console.log(settings.SICRE_URL);
+    console.log('sync url', settings.SYNC_URL);
 
-    $('#status-report').show();
-    $('#status-report').html('');
-    var statusContent = '<span>Sincronizando información</span>';
-    $('#status-report').append(statusContent);
+    // $('#status-report').show();
+    // $('#status-report').html('');
+    // var statusContent = '<span>Sincronizando información</span>';
+    // $('#status-report').append(statusContent);
     const plate = localStorage.getItem('plate');
     const formData = {
         parametro: {
@@ -512,29 +523,30 @@ const submitData = async(data) => {
         contentType: 'application/json',
         dataType: 'json',
         error: (request, status, error) => {
-            $('#status-report').show();
-            $('#status-report').html('');
-            var statusContent = '<span>Error sincronizando Información</span>';
-            $('#status-report').append(statusContent);
-            setTimeout(() => {
-                $('#status-report').html('');
-                $('#status-report').hide();
-            }, 3000);
+            // $('#status-report').show();
+            // $('#status-report').html('');
+            // var statusContent = '<span>Error sincronizando Información</span>';
+            // $('#status-report').append(statusContent);
+            // setTimeout(() => {
+            //     $('#status-report').html('');
+            //     $('#status-report').hide();
+            // }, 3000);
         },
         success: (response, status, jqXHQ) => {
-            $('#status-report').show();
-            $('#status-report').html('');
-            var statusContent = '<span>Información sincronizada exitosamente</span>';
-            $('#status-report').append(statusContent);
-            setTimeout(() => {
-                $('#status-report').html('');
-                $('#status-report').hide();
-            }, 3000);
+            // $('#status-report').show();
+            // $('#status-report').html('');
+            // var statusContent = '<span>Información sincronizada exitosamente</span>';
+            // $('#status-report').append(statusContent);
+            // setTimeout(() => {
+            //     $('#status-report').html('');
+            //     $('#status-report').hide();
+            // }, 3000);
         }
     });
 };
 
 setTimeout(async() => {
+
     // sicreWebview.openDevTools();
     // runtWebview.openDevTools();
     // paynetWebview.openDevTools();
@@ -590,7 +602,7 @@ ipc.on('pinCreated', (event, props) => {
     localStorage.setItem('transaction-number', props.transactionNumber);
     Swal.fire({
         title: 'Pin generado!',
-        text: "Se ha generado el ping correctamente. ¿Desea continuar a SICRE?",
+        text: "Se ha generado el ping correctamente. ¿Desea continuar a SICOV?",
         icon: 'success',
         html: `
         <ul>
@@ -602,7 +614,7 @@ ipc.on('pinCreated', (event, props) => {
         showCancelButton: true,
         confirmButtonColor: '#79c5b4',
         cancelButtonColor: '#e88aa2',
-        confirmButtonText: 'Continuar a SICRE',
+        confirmButtonText: 'Continuar a SICOV',
         cancelButtonText: 'Cancelar'
     }).then(async(result) => {
         if (result.isConfirmed) {
@@ -708,6 +720,7 @@ ipc.on('vehicleData', (event, props) => {
                     <li> Estado Soat: ${props.data.soat} </li>
                     <li> Estado Ultima Solicitud: ${props.data.lastRequest.lastRequestState}</li>
                     <li> Entidad Ultima Solicitud: ${props.data.lastRequest.lastRequestEntity}</li>
+                    <li> Fecha Ultima Solicitud: ${props.data.lastRequest.lastRequestDate}</li>
                 </ul>
                 `,
                 showCancelButton: true,
@@ -717,7 +730,7 @@ ipc.on('vehicleData', (event, props) => {
                 cancelButtonText: 'Cancelar'
             }).then(async(result) => {
                 if (result.isConfirmed) {
-                    // paynetWebview.send('navigate-to-pin', true);
+                    paynetWebview.send('navigate-to-pin', true);
                     $('#status-report').show();
                     $('#status-report').html('');
                     var statusContent = '<span>Cargando Paynet</span>';

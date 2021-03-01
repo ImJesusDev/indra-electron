@@ -34,6 +34,7 @@ ipc.on('paynetCredentials', async(event, props) => {
         await login();
     }
     if (window.location.href === 'https://indra.paynet.com.co:14443/InformacionSeguridad.aspx') {
+        console.log('here');
         ipc.sendTo(1, 'pinRedirect', true);
         await setTimeout(async() => {
             await navigateToPing();
@@ -135,25 +136,33 @@ const inputData = async() => {
 };
 
 const getPinInfo = async() => {
-    console.log('get pin info');
-    /* Get the pin number */
-    const pinSpan = $('#ctl00_cph_lblCodigoPinResumen');
-    const pinNumber = pinSpan.text();
-    /* Get the transaction number */
-    let transactionXpath = "//th[text()='Número de Transacción ']";
-    let transactionMatchingElement = document.evaluate(transactionXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-    let transactionParentElement = transactionMatchingElement.parentElement;
-    let transactionData = transactionParentElement.nextElementSibling.childNodes[3];
-    let transactionNumber = transactionData.textContent;
-    /* Get the pin value */
-    const pinValueSpan = $('#ctl00_cph_txtValorPinResumen');
-    const pinValue = pinValueSpan.text();
+    const payBtn = document.getElementById('ctl00_cph_btnPagar');
+    console.log(payBtn);
+    payBtn.addEventListener('click', async() => {
+        setTimeout(() => {
+            console.log('get pin info');
+            /* Get the pin number */
+            const pinSpan = $('#ctl00_cph_lblCodigoPinResumen');
+            const pinNumber = pinSpan.text();
+            /* Get the transaction number */
+            let transactionXpath = "//th[text()='Número de Transacción ']";
+            let transactionMatchingElement = document.evaluate(transactionXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let transactionParentElement = transactionMatchingElement.parentElement;
+            let transactionData = transactionParentElement.nextElementSibling.childNodes[3];
+            let transactionNumber = transactionData.textContent;
+            /* Get the pin value */
+            const pinValueSpan = $('#ctl00_cph_txtValorPinResumen');
+            const pinValue = pinValueSpan.text();
 
-    ipc.sendTo(1, 'pinCreated', {
-        'pin': pinNumber,
-        'transactionNumber': transactionNumber,
-        'pinValue': pinValue
+            console.log('Pay listener');
+            ipc.sendTo(1, 'pinCreated', {
+                'pin': pinNumber,
+                'transactionNumber': transactionNumber,
+                'pinValue': pinValue
+            });
+        }, 2000);
     });
+
 
 
 };

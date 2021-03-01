@@ -200,12 +200,12 @@
 
                         <label class="mt-2 mdl-radio mdl-js-radio" for="option1">
                             <input type = "radio" id = "option1" name = "foreign-vehicle"  value="Si"
-                            class = "mdl-radio__button" checked>
+                            class = "mdl-radio__button" >
                             <span class = "mdl-radio__label">Si</span>
                         </label>
 
                         <label class="mt-2 mdl-radio mdl-js-radio mdl-js-ripple-effect" for="option2">
-                            <input value="No" type = "radio" id = "option2" name = "foreign-vehicle" class = "mdl-radio__button" >
+                            <input checked value="No" type = "radio" id = "option2" name = "foreign-vehicle" class = "mdl-radio__button" >
                             <span class = "mdl-radio__label">No</span>
                         </label>
                     </div>
@@ -448,6 +448,28 @@
     <!-- JQUERY -->
     <script>
         window.$ = window.jQuery = require('./assets/js/jquery-3.5.1.min.js');
+        let sicovUsername = localStorage.getItem('sicov-username');
+        let sicovPassword = localStorage.getItem('sicov-password');
+        let paynetCredentials = localStorage.getItem('paynet-credentials');
+        if (sicovUsername) {
+            $('#sicov-username').val(sicovUsername);
+        }
+        if (sicovPassword) {
+            $('#sicov-password').val(sicovPassword);
+        }
+        if (paynetCredentials) {
+            let credentials = JSON.parse(paynetCredentials);
+            $('#paynet-username').val(credentials.username);
+            $('#paynet-password').val(credentials.password);
+        }
+        const sicovUsernameInput = $('#sicov-username');
+        const sicovPasswordInput = $('#sicov-password');
+        const paynetUsernameInput = $('#paynet-username');
+        const paynetPasswordInput = $('#paynet-password');
+        if (sicovUsernameInput.val() && sicovPasswordInput.val() && paynetUsernameInput.val() && paynetPasswordInput.val()) {
+            $('#sicov-btn-disabled').hide();
+            $('#sicov-btn-enabled').show();
+        }
     </script>
 
     <!-- Main Renderer -->
