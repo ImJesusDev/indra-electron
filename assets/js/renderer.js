@@ -249,7 +249,23 @@ function logout() {
     }).then(async(result) => {
         if (result.isConfirmed) {
             localStorage.clear();
-            showInitialForm();
+            $('#login-container').css("display", "flex");
+            $('#form-container').hide();
+            $('#progress-bar').show();
+            $('#initial-form').css('display', 'flex');
+            $('#status-report').html('');
+            $('#status-report').hide();
+            $('#failed-revisions').hide();
+            $('#runt-webview').hide();
+            $('#paynet-webview').hide();
+            $('#sicre-webview').hide();
+            $('#paynet-step').removeClass('done');
+            $('#runt-step').removeClass('done');
+            $('#sicre-step').removeClass('done');
+            $('#paynet-step').removeClass('current');
+            $('#runt-step').removeClass('current');
+            $('#sicre-step').removeClass('current');
+            $('#initial-step').addClass('current').removeClass('done');
         }
     });
 
@@ -392,6 +408,9 @@ function showInitialForm() {
     $('#paynet-step').removeClass('done');
     $('#runt-step').removeClass('done');
     $('#sicre-step').removeClass('done');
+    $('#paynet-step').removeClass('current');
+    $('#runt-step').removeClass('current');
+    $('#sicre-step').removeClass('current');
     $('#initial-step').addClass('current').removeClass('done');
 }
 

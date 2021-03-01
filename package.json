@@ -1,6 +1,6 @@
 {
     "name": "Indra",
-    "version": "1.0.7",
+    "version": "1.0.8",
     "description": "Electron project",
     "main": "index.js",
     "repository": {
