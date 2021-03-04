@@ -27,13 +27,18 @@ function createWindow() {
 
     // win.webContents.openDevTools()
 
-
+    //NIT
+    //8301081162
+    //PLACA
+    // BCD396
 
 
     //HKQ558
     //51914792
     //123123123
     //Paynet2020*
+    //ultraconcept
+    //Ultraconcept123*
 }
 
 

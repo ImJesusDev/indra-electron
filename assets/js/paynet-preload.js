@@ -22,30 +22,38 @@ ipc.on('checkForErrors', async(event, props) => {
         }
     }
 });
-
+ipc.on('logOut', async(event, props) => {
+    console.log('log out');
+    await logOut();
+});
 ipc.on('paynetCredentials', async(event, props) => {
     console.log('paynetCredentials');
+    window.$ = window.jQuery = require(path.join(__dirname, '/jquery-3.5.1.min.js'));
+    await setUsername(props.username);
+    await setPassword(props.password);
+    await login();
+
     if (window.location.href === 'https://indra.paynet.com.co:14443/login.aspx') {
 
-        ipc.sendTo(1, 'paynetLogin', true);
+        // ipc.sendTo(1, 'paynetLogin', true);
         // window.$ = window.jQuery = require(path.join(__dirname, '/jquery-3.5.1.min.js'));
-        await setUsername(props.username);
-        await setPassword(props.password);
-        await login();
+        // await setUsername(props.username);
+        // await setPassword(props.password);
+        // await login();
     }
-    if (window.location.href === 'https://indra.paynet.com.co:14443/InformacionSeguridad.aspx') {
-        console.log('here');
-        ipc.sendTo(1, 'pinRedirect', true);
-        await setTimeout(async() => {
-            await navigateToPing();
-        }, 1000);
-    }
-    if (window.location.href === 'https://indra.paynet.com.co:14443/PIN/VentaPin.aspx') {
-        await setTimeout(async() => {
-            ipc.sendTo(1, 'loadingPinInfo', true);
-            await inputData();
-        }, 1000);
-    }
+    // if (window.location.href === 'https://indra.paynet.com.co:14443/InformacionSeguridad.aspx') {
+    //     console.log('here');
+    //     ipc.sendTo(1, 'pinRedirect', true);
+    //     await setTimeout(async() => {
+    //         await navigateToPing();
+    //     }, 1000);
+    // }
+    // if (window.location.href === 'https://indra.paynet.com.co:14443/PIN/VentaPin.aspx') {
+    //     await setTimeout(async() => {
+    //         ipc.sendTo(1, 'loadingPinInfo', true);
+    //         await inputData();
+    //     }, 1000);
+    // }
 
 });
 ipc.on('add-listeners', async(event, props) => {
@@ -89,16 +97,18 @@ document.addEventListener('DOMContentLoaded', async(event) => {
 }, false);
 
 const setListeners = async() => {
-    ipc.sendTo(1, 'infoCompleted', true);
     const continueBtn = document.getElementById('ctl00_cph_btnSiguiente');
     console.log(continueBtn);
-    continueBtn.addEventListener('click', async() => {
-        console.log('add-listenerrrr');
-        ipc.sendTo(1, 'nextPressed', true);
-        setTimeout(async() => {
-            await getPinInfo();
-        }, 2000);
-    });
+    if (continueBtn) {
+        ipc.sendTo(1, 'infoCompleted', true);
+        continueBtn.addEventListener('click', async() => {
+            console.log('add-listenerrrr');
+            ipc.sendTo(1, 'nextPressed', true);
+            setTimeout(async() => {
+                await getPinInfo();
+            }, 3000);
+        });
+    }
 
 };
 const navigateToPing = async() => {
@@ -137,35 +147,45 @@ const inputData = async() => {
 
 const getPinInfo = async() => {
     const payBtn = document.getElementById('ctl00_cph_btnPagar');
+    ipc.sendTo(1, 'pleaseClickPay', true);
     console.log(payBtn);
-    payBtn.addEventListener('click', async() => {
-        setTimeout(() => {
-            console.log('get pin info');
-            /* Get the pin number */
-            const pinSpan = $('#ctl00_cph_lblCodigoPinResumen');
-            const pinNumber = pinSpan.text();
-            /* Get the transaction number */
-            let transactionXpath = "//th[text()='Número de Transacción ']";
-            let transactionMatchingElement = document.evaluate(transactionXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
-            let transactionParentElement = transactionMatchingElement.parentElement;
-            let transactionData = transactionParentElement.nextElementSibling.childNodes[3];
-            let transactionNumber = transactionData.textContent;
-            /* Get the pin value */
-            const pinValueSpan = $('#ctl00_cph_txtValorPinResumen');
-            const pinValue = pinValueSpan.text();
+    if (payBtn) {
+        payBtn.addEventListener('click', async() => {
+            setTimeout(async() => {
+                console.log('get pin info');
+                /* Get the pin number */
+                const pinSpan = $('#ctl00_cph_lblCodigoPinResumen');
+                const pinNumber = pinSpan.text();
+                /* Get the transaction number */
+                let transactionXpath = "//th[text()='Número de Transacción ']";
+                let transactionMatchingElement = document.evaluate(transactionXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                let transactionParentElement = transactionMatchingElement.parentElement;
+                let transactionData = transactionParentElement.nextElementSibling.childNodes[3];
+                let transactionNumber = transactionData.textContent;
+                /* Get the pin value */
+                const pinValueSpan = $('#ctl00_cph_txtValorPinResumen');
+                const pinValue = pinValueSpan.text();
 
-            console.log('Pay listener');
-            ipc.sendTo(1, 'pinCreated', {
-                'pin': pinNumber,
-                'transactionNumber': transactionNumber,
-                'pinValue': pinValue
-            });
-        }, 2000);
-    });
+                console.log('Pay listener');
+                ipc.sendTo(1, 'pinCreated', {
+                    'pin': pinNumber,
+                    'transactionNumber': transactionNumber,
+                    'pinValue': pinValue
+                });
+            }, 3000);
+
+
+        });
+    }
 
 
 
 };
+
+const logOut = async() => {
+    const logOutBtn = $('#logout2');
+    logOutBtn.click();
+}
 
 const setPlate = async(plate) => {
     const plateInput = $('#ctl00_cph_txtPlaca');
@@ -264,6 +284,6 @@ const login = async() => {
     console.log('login');
     const loginBtn = $('#ctl00_cph_StormLogin_LoginButton');
     const rememberInput = document.getElementById('ctl00_cph_StormLogin_RememberMe');
-    rememberInput.checked = true;
+    rememberInput.checked = false;
     loginBtn.click();
 };

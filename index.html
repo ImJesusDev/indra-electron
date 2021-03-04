@@ -145,10 +145,10 @@
             <div id="progress-bar" class="container">
                 <div class="wrapper">
                     <div class="arrow-steps clearfix">
-                        <div id="initial-step" class="step current"> <span>Iniciar revisión</span> </div>
-                        <div id="runt-step" class="step"> <span>RUNT</span> </div>
-                        <div id="paynet-step" class="step"> <span> Paynet</span> </div>
-                        <div id="sicov-step" class="step"> <span>SICOV</span> </div>
+                        <div onclick="showInitialForm()" id="initial-step" class="step current"> <span>Iniciar revisión</span> </div>
+                        <div onclick="showRunt()" id="runt-step" class="step"> <span>RUNT</span> </div>
+                        <div onclick="showPaynet()" id="paynet-step" class="step"> <span> Paynet</span> </div>
+                        <div onclick="showSicov()" id="sicov-step" class="step"> <span>SICOV</span> </div>
                     </div>
                 </div>
             </div>
@@ -164,12 +164,12 @@
 
                     <div>
                         <div class="is-dirty mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input onkeyup="initialFormChange()" value="" class="mdl-textfield__input" type="text" id="vehicle-plate">
-                            <label class="mdl-textfield__label" for="vehicle-plate">Placa del vehículo</label>
+                            <input value="HKQ558" required onkeyup="initialFormChange()" value="" class="mdl-textfield__input" type="text" id="vehicle-plate">
+                            <label class="mdl-textfield__label" for="vehicle-plate">Placa del vehículo *</label>
                         </div>
                     </div>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <select onchange="initialFormChange()" class="mdl-textfield__input" id="document-type" name="document-type">
+                        <select required onchange="initialFormChange()" class="mdl-textfield__input" id="document-type" name="document-type">
                           <option value="">Tipo de documento</option>
                           <option value="D">Carnet Diplomático</option>
                           <option value="C">Cédula Ciudadanía</option>
@@ -183,20 +183,20 @@
                     </div>
                     <div>
                         <div class="is-dirty mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input value="" onkeyup="initialFormChange()" class="mdl-textfield__input" type="text" id="document-number">
-                            <label class="mdl-textfield__label" for="document-number">Número de documento</label>
+                            <input value="51914792" required value="" onkeyup="initialFormChange()" class="mdl-textfield__input" type="text" id="document-number">
+                            <label class="mdl-textfield__label" for="document-number">Número de documento *</label>
                         </div>
                     </div>
 
                     <div>
                         <div class="is-dirty mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input value="" onkeyup="initialFormChange()" class="mdl-textfield__input" type="text" id="cellphone">
-                            <label class="mdl-textfield__label" for="cellphone">Celular</label>
+                            <input value="123456" required value="" onkeyup="initialFormChange()" class="mdl-textfield__input" type="text" id="cellphone">
+                            <label class="mdl-textfield__label" for="cellphone">Celular *</label>
                         </div>
                     </div>
                     <div class="mt-2 is-dirty mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
 
-                        <label class="mdl-textfield__label">Vehículo de nacionalidad extranjera</label>
+                        <label class="mdl-textfield__label">Vehículo de nacionalidad extranjera *</label>
 
                         <label class="mt-2 mdl-radio mdl-js-radio" for="option1">
                             <input type = "radio" id = "option1" name = "foreign-vehicle"  value="Si"
@@ -213,7 +213,7 @@
                     <br>
 
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <select onchange="initialFormChange()" class="mdl-textfield__input" id="revision-type" name="revision-type">
+                        <select required onchange="initialFormChange()" class="mdl-textfield__input" id="revision-type" name="revision-type">
                           <option value="">Tipo de Revisión</option>
                           <option value="70">RTM y de Emisiones Contaminantes</option>
                           <option value="71">RTM y Certificación Vehículos de Enseñanza</option>
@@ -221,8 +221,8 @@
                         <!-- <label class="mdl-textfield__label" for="revision-type">Tipo de Revisión</label> -->
                     </div> <br>
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                        <select onchange="initialFormChange()" class="mdl-textfield__input" id="vehicle-type-select" name="vehicle-type-select">
-                            <option value="">Tipo de Vehículo</option>
+                        <select required onchange="initialFormChange()" class="mdl-textfield__input" id="vehicle-type-select" name="vehicle-type-select">
+                            <option value="">Tipo de Vehículo *</option>
                             <option value="MOTOCICLETA">MOTOCICLETA</option>
                             <option value="LIVIANOS PARTICULARES">LIVIANOS PARTICULARES</option>
                             <option value="PESADOS 2 EJES PARTICULARES">PESADOS 2 EJES PARTICULARES</option>
@@ -243,7 +243,7 @@
                     <div class="flex mt-5 items-center justify-center">
 
                         <img onclick="goToRunt()" id="continue-img" width="80px" src="assets/images/success.svg" alt="Continuar">
-                        <img id="continue-disabled" width="80px" src="assets/images/success-disabled.svg" alt="Continuar">
+                        <img onclick="validateFields()" id="continue-disabled" width="80px" src="assets/images/success-disabled.svg" alt="Continuar">
 
                     </div>
                 </form>

@@ -27,6 +27,7 @@ ipc.on('runt-form-data', async(event, props) => {
     let documentMatchingElement = document.evaluate(documentTypeXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     let documentTypeSelect = documentMatchingElement.parentElement.childNodes[3].childNodes[3];
     documentTypeSelect.value = userDocumentType;
+    documentTypeSelect.dispatchEvent(new Event("change"))
 });
 /* Add listener for when the content is loaded */
 document.addEventListener('DOMContentLoaded', async(event) => {
