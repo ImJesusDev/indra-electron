@@ -90,10 +90,12 @@ const setPin = async(pin) => {
 };
 //
 const setPinValue = async(pinValue) => {
-    console.log(pinValue);
+    let pin = pinValue.replaceAll('.', '').trim();
+    console.log(pin);
     setTimeout(() => {
         const pinValueInput = $('#ctl00_body_txtValorDePin');
-        pinValueInput.val(pinValue);
+        console.log(pinValueInput);
+        pinValueInput.val(pin);
     }, 1000);
 };
 //

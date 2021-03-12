@@ -172,6 +172,36 @@ const getPinInfo = async() => {
                     'transactionNumber': transactionNumber,
                     'pinValue': pinValue
                 });
+
+                let parent = document.getElementById('ctl00_cph_pnlSaveVentaPin');
+                console.log(parent);
+                let ele = document.createElement("button");
+                ele.textContent = 'Obtener PIN';
+                console.log(ele);
+                parent.append(ele);
+                console.log(parent);
+                ele.addEventListener('click', async(e) => {
+                    e.preventDefault();
+                    /* Get the pin number */
+                    const pinSpan = $('#ctl00_cph_lblCodigoPinResumen');
+                    const pinNumber = pinSpan.text();
+                    /* Get the transaction number */
+                    let transactionXpath = "//th[text()='Número de Transacción ']";
+                    let transactionMatchingElement = document.evaluate(transactionXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+                    let transactionParentElement = transactionMatchingElement.parentElement;
+                    let transactionData = transactionParentElement.nextElementSibling.childNodes[3];
+                    let transactionNumber = transactionData.textContent;
+                    /* Get the pin value */
+                    const pinValueSpan = $('#ctl00_cph_txtValorPinResumen');
+                    const pinValue = pinValueSpan.text();
+
+                    console.log('Pay listener');
+                    ipc.sendTo(1, 'pinCreated', {
+                        'pin': pinNumber,
+                        'transactionNumber': transactionNumber,
+                        'pinValue': pinValue
+                    });
+                });
             }, 3000);
 
 

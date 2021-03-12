@@ -25,7 +25,7 @@ function createWindow() {
     win.removeMenu();
     win.show();
 
-    // win.webContents.openDevTools()
+    // win.webContents.openDevTools();
 
     //NIT
     //8301081162

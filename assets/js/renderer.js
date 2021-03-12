@@ -13,6 +13,7 @@ const sicreWebview = document.getElementById('sicre-webview');
 /* File system */
 const fs = require('fs');
 
+const log = require('electron-log');
 
 let currentSicreState;
 let currentPaynetState;
@@ -75,13 +76,13 @@ sicreWebview.addEventListener('did-stop-loading', (event) => {
 
 ipc.on('info-entered', (event, props) => {
     $('#status-report').html('');
-    var statusContent = '<span>Por favor, verifique la información, y haga click en Formalizar Revisión!</span>';
+    var statusContent = '<span>Por favor, verifique la información y haga click en "Formalizar revisión"</span>';
     $('#status-report').append(statusContent);
     $('#status-report').show();
 });
 ipc.on('pleaseClickPay', (event, props) => {
     $('#status-report').html('');
-    var statusContent = '<span>Por favor, presione el boton Pagar!</span>';
+    var statusContent = '<span>Por favor, presione el boton "Pagar"</span>';
     $('#status-report').append(statusContent);
     $('#status-report').show();
 });
@@ -118,7 +119,7 @@ sicreWebview.addEventListener('did-navigate', (event) => {
             console.log('finished by url');
             $('#status-report').show();
             $('#status-report').html('');
-            var statusContent = '<span>Formalizacion realizada!</span>';
+            var statusContent = '<span>¡Formalización realizada!</span>';
             $('#status-report').append(statusContent);
             setTimeout(() => {
                 $('#status-report').html('');
@@ -215,6 +216,7 @@ function sicovInputChange() {
 }
 
 function validateFields() {
+    console.log('here');
     const plate = $('#vehicle-plate');
     const documentNumber = $('#document-number');
     const documentType = $('#document-type');
@@ -226,6 +228,7 @@ function validateFields() {
         return false;
     }
     if (!documentType.val()) {
+        console.log('xd');
         $('#document-type').focus();
         return false;
     }
@@ -350,8 +353,8 @@ function showForm() {
     localStorage.setItem('sicov-username', sicovUsername.val());
     localStorage.setItem('sicov-password', sicovPassword.val());
     // localStorage.setItem('auth-token', response.token);
-    const sicreUrl = localStorage.getItem('sicre-url');
-    $('#sicre-webview').attr('src', sicreUrl);
+    // const sicreUrl = localStorage.getItem('sicre-url');
+    // $('#sicre-webview').attr('src', sicreUrl);
 
 
 }
@@ -476,8 +479,19 @@ function showSicov() {
     $('#sicre-webview').show();
 }
 
+function resetForm() {
+    $('#vehicle-plate').val('');
+    $('#document-number').val('');
+    $('#cellphone').val('');
+    $('#document-type').val('');
+    $('#revision-type').val('');
+    $('#vehicle-type-select').val('');
+
+}
+
 function showInitialForm() {
     runtWebview.send('newRequest', true);
+    resetForm();
     $('#initial-form').css('display', 'flex');
     $('#status-report').html('');
     $('#status-report').hide();
@@ -580,13 +594,13 @@ const submitData = async(data) => {
     const settingsData = fs.readFileSync('settings/settings.json');
     const json = settingsData.toString('utf8');
     settings = JSON.parse(json);
-    console.log('sync url', settings.SYNC_URL);
 
     // $('#status-report').show();
     // $('#status-report').html('');
     // var statusContent = '<span>Sincronizando información</span>';
     // $('#status-report').append(statusContent);
     const plate = localStorage.getItem('plate');
+    log.info(`Sincronizando placa: ${plate}`);
     const formData = {
         parametro: {
             "placa": plate,
@@ -614,7 +628,7 @@ const submitData = async(data) => {
             "NivelBlindaje": data.armoredInfo.armorLevel
         }
     };
-    console.log(formData);
+    log.info(JSON.stringify(formData));
 
     $.ajax({
         type: "POST",
@@ -622,7 +636,11 @@ const submitData = async(data) => {
         data: JSON.stringify(formData),
         contentType: 'application/json',
         dataType: 'json',
+        timeout: 18000,
         error: (request, status, error) => {
+            log.warn('Error sincronizando');
+            log.warn(status);
+            log.warn(request.responseText);
             // $('#status-report').show();
             // $('#status-report').html('');
             // var statusContent = '<span>Error sincronizando Información</span>';
@@ -633,6 +651,8 @@ const submitData = async(data) => {
             // }, 3000);
         },
         success: (response, status, jqXHQ) => {
+            log.info('Información sincronizada');
+            log.info(JSON.stringify(response));
             // $('#status-report').show();
             // $('#status-report').html('');
             // var statusContent = '<span>Información sincronizada exitosamente</span>';
@@ -669,13 +689,14 @@ ipc.on('revision-finished', (event, props) => {
         $('#status-report').html('');
         $('#status-report').hide();
     }, 3000);
-    let url = localStorage.getItem('sicre-url');
-    $('#sicre-webview').attr('src', url);
+    // let url = localStorage.getItem('sicre-url');
+    // $('#sicre-webview').attr('src', url);
     $('#paynet-step').removeClass('done');
     $('#runt-step').removeClass('done');
     $('#initial-step').addClass('current').removeClass('done');
     $('#sicre-webview').hide();
     $('#initial-form').show();
+    resetForm();
 });
 
 
@@ -702,7 +723,7 @@ ipc.on('pinCreated', (event, props) => {
     localStorage.setItem('pin-value', parsedValue);
     localStorage.setItem('transaction-number', props.transactionNumber);
     Swal.fire({
-        title: 'Pin generado!',
+        title: '¡PIN generado!',
         text: "Se ha generado el ping correctamente. ¿Desea continuar a SICOV?",
         icon: 'success',
         html: `
@@ -796,13 +817,13 @@ ipc.on('vehicleData', (event, props) => {
     if (props.type === 'vehicleInfo') {
         $('#status-report').show();
         $('#status-report').html('');
-        var statusContent = '<span>Consultando Información del Vehículo!</span>';
+        var statusContent = '<span>Consultando información del vehículo</span>';
         localStorage.setItem('vehicle-model', props.data.model);
         $('#status-report').append(statusContent);
     }
     if (props.type === 'otherInfo') {
         $('#status-report').html('');
-        var statusContent = '<span>Consultando Información Adicional!</span>';
+        var statusContent = '<span>Consultando información adicional</span>';
         $('#status-report').append(statusContent);
     }
 
@@ -817,7 +838,7 @@ ipc.on('vehicleData', (event, props) => {
             $('#status-report').html('');
             $('#status-report').hide();
             Swal.fire({
-                title: 'Información obtenida!',
+                title: '¡Información obtenida!',
                 text: "Se ha consultado la información correctamente. ¿Desea continuar a Paynet?",
                 icon: 'success',
                 html: `
@@ -825,13 +846,13 @@ ipc.on('vehicleData', (event, props) => {
                     <li> Marca: ${props.data.make} </li>
                     <li> Modelo: ${props.data.model} </li>
                     <li> Color: ${props.data.color}</li>
-                    <li> Linea:${props.data.line} </li>
+                    <li> Línea:${props.data.line} </li>
                     <li> Licencia:${props.data.license} </li>
-                    <li> Estado de Vehículo: ${props.data.state}</li>
+                    <li> Estado del vehículo: ${props.data.state}</li>
                     <li> Estado Soat: ${props.data.soat} </li>
-                    <li> Estado Ultima Solicitud: ${props.data.lastRequest.lastRequestState}</li>
-                    <li> Entidad Ultima Solicitud: ${props.data.lastRequest.lastRequestEntity}</li>
-                    <li> Fecha Ultima Solicitud: ${props.data.lastRequest.lastRequestDate}</li>
+                    <li> Estado última solicitud: ${props.data.lastRequest.lastRequestState}</li>
+                    <li> Entidad última solicitud: ${props.data.lastRequest.lastRequestEntity}</li>
+                    <li> Fecha última solicitud: ${props.data.lastRequest.lastRequestDate}</li>
                 </ul>
                 `,
                 showCancelButton: true,

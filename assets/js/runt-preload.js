@@ -39,6 +39,98 @@ document.addEventListener('DOMContentLoaded', async(event) => {
             /* Find button to make the request for vehicle information */
             let xpath = "//button[text()='Consultar Información']";
 
+            /* Add button to force data read */
+            let newSearchXpath = "//button[text()='Realizar otra consulta']";
+            let newSearchButton = document.evaluate(newSearchXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
+            let parent = newSearchButton.parentElement;
+            let ele = document.createElement("button");
+            ele.id = "get-data";
+            ele.classList.add('btn', 'btn-primary');
+            ele.textContent = 'Obtener datos';
+            /* Add Event on click for the button */
+            ele.addEventListener("click", async() => {
+
+
+                /* Add timeout after the button is clicked */
+                setTimeout(async() => {
+                    let theMake = await getVehicleMake();
+                    let theModel = await getVehicleModel();
+                    let theLine = await getVehicleLine();
+                    let theColor = await getVehicleColor();
+                    let theState = await getVehicleState();
+                    let license = await getLicense();
+                    let vehicleClass = await getVehicleClass();
+                    let serviceType = await getServiceType();
+                    let motorNumber = await getMotorNumber();
+                    let chasisNumber = await getChasisNumber();
+                    let serieNumber = await getSerieNumber();
+                    let cylinderCapacity = await getCylinderCapacity();
+                    let fuelType = await getFuelType();
+                    let vinNumber = await getVinNumber();
+                    let plateDate = await getPlateDate();
+                    await sendData('vehicleInfo', {
+                        chasisNumber: chasisNumber,
+                        cylinderCapacity: cylinderCapacity,
+                        plateDate: plateDate,
+                        make: theMake,
+                        model: theModel,
+                        line: theLine,
+                        color: theColor,
+                        state: theState,
+                        license: license,
+                        vehicleClass: vehicleClass,
+                        serviceType: serviceType,
+                        motorNumber: motorNumber,
+                        fuelType: fuelType,
+                        vinNumber: vinNumber,
+                        procedencia: procedencia,
+                        serieNumber: serieNumber
+                    });
+
+                    let soatInfo = await getSoatInfo();
+                    let armoredInfo = await getArmoredInfo();
+                    let lastRequestInfo = await getRequestInfo();
+                    let technicalData = await getTechnicalData();
+
+                    await sendData('otherInfo', {
+                        soat: soatInfo,
+                        lastRequest: lastRequestInfo
+                    })
+
+                    await sendData('done', {
+                        make: theMake,
+                        model: theModel,
+                        line: theLine,
+                        color: theColor,
+                        state: theState,
+                        soat: soatInfo,
+                        technicalData: technicalData,
+                        lastRequest: lastRequestInfo,
+                        license: license,
+                        plateDate: plateDate,
+                        vehicleClass: vehicleClass,
+                        serviceType: serviceType,
+                        motorNumber: motorNumber,
+                        fuelType: fuelType,
+                        vinNumber: vinNumber,
+                        chasisNumber: chasisNumber,
+                        cylinderCapacity: cylinderCapacity,
+                        armoredInfo: armoredInfo,
+                        procedencia: procedencia,
+                        serieNumber: serieNumber
+                    });
+                    // await newRequest();
+
+                }, 1000);
+            });
+            parent.appendChild(ele);
+
+
+
+
+
+
+
             let matchingElement = document.evaluate(xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
             //cxpath procedencia
             let xpathP = "//label[text()='Procedencia:']";
@@ -406,6 +498,7 @@ const getArmoredInfo = async() => {
 
 const newRequest = async() => {
     /*  Click the button to make another search */
+    window.location.reload();
     let newSearchXpath = "//button[text()='Realizar otra consulta']";
     let newSearchButton = document.evaluate(newSearchXpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null).singleNodeValue;
     newSearchButton.click();
