@@ -61,7 +61,7 @@
             <div class="login-form">
 
                 <!-- Form -->
-                <form>
+                <form class="w-10/12">
 
                     <!-- Sicov User -->
                     <div class="mb-4">
@@ -80,6 +80,24 @@
                         <input value="" onkeyup="sicovInputChange()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="sicov-password" type="password" placeholder="Password SICOV">
                     </div>
                     <!-- Sicov Password -->
+
+                    <!-- Sicov Url -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold " for="url-sicov">
+                            Url SICOV
+                        </label>
+                        <input value="" onkeyup="sicovInputChange()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="sicov-url" type="text" placeholder="Enlace de acceso a SICOV">
+                    </div>
+                    <!-- Sicov Url -->
+
+                    <!-- Sicov Sync Url -->
+                    <div class="mb-6">
+                        <label class="block text-gray-700 text-sm font-bold " for="url-sync">
+                            Url de sincronización
+                        </label>
+                        <input value="" onkeyup="sicovInputChange()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="sync-url" type="text" placeholder="Enlace API sincronización">
+                    </div>
+                    <!-- Sicov Sync Url -->
 
                     <!-- Paynet User -->
                     <div class="mb-4">
@@ -450,9 +468,17 @@
         window.$ = window.jQuery = require('./assets/js/jquery-3.5.1.min.js');
         let sicovUsername = localStorage.getItem('sicov-username');
         let sicovPassword = localStorage.getItem('sicov-password');
+        let savedSicovUrl = localStorage.getItem('sicov-url');
+        let savedSyncUrl = localStorage.getItem('sync-url');
         let paynetCredentials = localStorage.getItem('paynet-credentials');
         if (sicovUsername) {
             $('#sicov-username').val(sicovUsername);
+        }
+        if (savedSicovUrl) {
+            $('#sicov-url').val(savedSicovUrl);
+        }
+        if (savedSyncUrl) {
+            $('#sync-url').val(savedSyncUrl);
         }
         if (sicovPassword) {
             $('#sicov-password').val(sicovPassword);
@@ -466,7 +492,9 @@
         const sicovPasswordInput = $('#sicov-password');
         const paynetUsernameInput = $('#paynet-username');
         const paynetPasswordInput = $('#paynet-password');
-        if (sicovUsernameInput.val() && sicovPasswordInput.val() && paynetUsernameInput.val() && paynetPasswordInput.val()) {
+        const sicovUrl = $('#sicov-url');
+        const syncUrl = $('#sync-url');
+        if (sicovUsernameInput.val() && sicovPasswordInput.val() && paynetUsernameInput.val() && paynetPasswordInput.val() && sicovUrl.val() && syncUrl.val()) {
             $('#sicov-btn-disabled').hide();
             $('#sicov-btn-enabled').show();
         }

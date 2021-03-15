@@ -10,17 +10,13 @@ const runtWebview = document.getElementById('runt-webview');
 const paynetWebview = document.getElementById('paynet-webview');
 /* Sicre */
 const sicreWebview = document.getElementById('sicre-webview');
-/* File system */
-const fs = require('fs');
+
 
 const log = require('electron-log');
 
 let currentSicreState;
 let currentPaynetState;
-let data = fs.readFileSync('settings/settings.json');
-let json = data.toString('utf8');
-settings = JSON.parse(json);
-$('#sicre-webview').attr('src', settings.SICRE_URL);
+
 paynetWebview.addEventListener('did-stop-loading', async(event) => {
     if (currentPaynetState.indexOf('login') >= 0) {
         // await checkPaynetCredentials();
@@ -125,10 +121,6 @@ sicreWebview.addEventListener('did-navigate', (event) => {
                 $('#status-report').html('');
                 $('#status-report').hide();
             }, 3000);
-            const data = fs.readFileSync('settings/settings.json');
-            const json = data.toString('utf8');
-            settings = JSON.parse(json);
-            $('#sicre-webview').attr('src', settings.SICRE_URL);
             $('#paynet-step').removeClass('done');
             $('#runt-step').removeClass('done');
             $('#initial-step').addClass('current').removeClass('done');
@@ -209,7 +201,9 @@ function sicovInputChange() {
     const sicovPassword = $('#sicov-password');
     const paynetUsername = $('#paynet-username');
     const paynetPassword = $('#paynet-password');
-    if (sicovUsername.val() && sicovPassword.val() && paynetUsername.val() && paynetPassword.val()) {
+    const sicovUrl = $('#sicov-url');
+    const syncUrl = $('#sync-url');
+    if (sicovUsername.val() && sicovPassword.val() && paynetUsername.val() && paynetPassword.val() && sicovUrl.val() && syncUrl.val()) {
         $('#sicov-btn-disabled').hide();
         $('#sicov-btn-enabled').show();
     }
@@ -334,6 +328,11 @@ function showForm() {
     $('#status-report').show();
     const sicovUsername = $('#sicov-username');
     const sicovPassword = $('#sicov-password');
+    const sicovUrl = $('#sicov-url');
+    const syncUrl = $('#sync-url');
+    localStorage.setItem('sicov-url', sicovUrl.val());
+    localStorage.setItem('sync-url', syncUrl.val());
+    $('#sicre-webview').attr('src', sicovUrl.val());
     formData = new FormData();
     formData.append('username', sicovUsername.val());
     formData.append('password', sicovPassword.val());
@@ -590,12 +589,10 @@ const checkPaynetCredentials = async() => {
 
 };
 const submitData = async(data) => {
-    //Get Settings
-    const settingsData = fs.readFileSync('settings/settings.json');
-    const json = settingsData.toString('utf8');
     let capacidadDeCarga = data.technicalData.totalPassengers ? data.technicalData.totalPassengers : "0";
-    capacidadDeCarga = capacidadDeCarga.replace('KILO', '');
-    settings = JSON.parse(json);
+    console.log(data.technicalData.totalPassengers);
+    capacidadDeCarga = capacidadDeCarga.replace(/[^0-9.,]+/, '');
+    const syncUrl = localStorage.getItem('sync-url');
 
     // $('#status-report').show();
     // $('#status-report').html('');
@@ -634,7 +631,7 @@ const submitData = async(data) => {
 
     $.ajax({
         type: "POST",
-        url: settings.SYNC_URL,
+        url: syncUrl,
         data: JSON.stringify(formData),
         contentType: 'application/json',
         dataType: 'json',
@@ -866,6 +863,7 @@ ipc.on('vehicleData', (event, props) => {
                 if (result.isConfirmed) {
                     // paynetWebview.send('navigate-to-pin', true);
                     await checkPaynetCredentials();
+                    // $('#runt-webview').attr('src', 'https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo');
                     $('#status-report').show();
                     $('#status-report').html('');
                     var statusContent = '<span>Cargando Paynet</span>';
