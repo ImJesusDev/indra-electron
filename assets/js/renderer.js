@@ -593,6 +593,8 @@ const submitData = async(data) => {
     //Get Settings
     const settingsData = fs.readFileSync('settings/settings.json');
     const json = settingsData.toString('utf8');
+    let capacidadDeCarga = data.technicalData.totalPassengers ? data.technicalData.totalPassengers : "0";
+    capacidadDeCarga = capacidadDeCarga.replace('KILO', '');
     settings = JSON.parse(json);
 
     // $('#status-report').show();
@@ -620,7 +622,7 @@ const submitData = async(data) => {
             "Cilindraje": data.cylinderCapacity,
             "Combustible": data.fuelType,
             "FechaMatricula": moment(data.plateDate, "DD/MM/YYYY").format("YYYY-MM-DD"),
-            "CapacidadCarga": data.technicalData.totalLoad ? data.technicalData.totalLoad : "0",
+            "CapacidadCarga": capacidadDeCarga,
             "PesoBruto": data.technicalData.totalWeight,
             "CapacidadPasajeros": data.technicalData.totalPassengers ? data.technicalData.totalPassengers : "0",
             "CantEjes": data.technicalData.totalAxis,
