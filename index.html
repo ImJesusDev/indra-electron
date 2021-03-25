@@ -182,7 +182,7 @@
 
                     <div>
                         <div class="is-dirty mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
-                            <input required onkeyup="initialFormChange()" value="" class="mdl-textfield__input" type="text" id="vehicle-plate">
+                            <input required onkeyup="initialFormChange()" value="" class="mdl-textfield__input uppercase" type="text" id="vehicle-plate">
                             <label class="mdl-textfield__label" for="vehicle-plate">Placa del vehículo *</label>
                         </div>
                     </div>
@@ -233,7 +233,7 @@
                     <div class="mdl-textfield mdl-js-textfield mdl-textfield--floating-label">
                         <select required onchange="initialFormChange()" class="mdl-textfield__input" id="revision-type" name="revision-type">
                           <option value="">Tipo de revisión *</option>
-                          <option value="70">RTM y de emisiones contaminantes</option>
+                          <option value="70" selected>RTM y de emisiones contaminantes</option>
                           <option value="71">RTM y certificación vehículos de enseñanza</option>
                         </select>
                         <!-- <label class="mdl-textfield__label" for="revision-type">Tipo de Revisión</label> -->
@@ -242,18 +242,17 @@
                         <select required onchange="initialFormChange()" class="mdl-textfield__input" id="vehicle-type-select" name="vehicle-type-select">
                             <option value="">Tipo de vehículo *</option>
                             <option value="MOTOCICLETA">Motocicleta</option>
+                            <option value="MOTOCARROS LIVIANOS PARTICULARES">Motocarros particulares</option>
+                            <option value="MOTOCARROS LIVIANOS PUBLICOS">Motocarros públicos</option>s
                             <option value="LIVIANOS PARTICULARES">Livianos particulares </option>
-                            <option value="PESADOS 2 EJES PARTICULARES">Pesados 2 ejes particulares</option>
-                            <option value="MOTOCARROS">Motocarros</option>
                             <option value="LIVIANOS PUBLICOS">Livianos públicos</option>
+                            <option value="PESADOS 2 EJES PARTICULARES">Pesados 2 ejes particulares</option>
+                            <option value="PESADOS 2 EJES PUBLICOS">Pesados 2 ejes públicos</option>
                             <option value="PESADOS 3 O MAS EJES PARTICULARES">Pesados 3 o más ejes particulares</option>
+                            <option value="PESADOS 3 O MAS EJES PUBLICOS">Pesados 3 o más ejes públicos</option>
                             <option value="PESADOS BIARTICULADOS PARTICULARES">Pesados biarticulados particulares
                             </option>
                             <option value="PESADOS BIARTICULADOS PUBLICOS">Pesados biarticulados públicos</option>
-                            <option value="PESADOS 3 O MAS EJES PUBLICOS">Pesados 3 o más ejes públicos</option>
-                            <option value="PESADOS 2 EJES PUBLICOS">Pesados 2 ejes públicos</option>
-                            <option value="MOTOCARROS LIVIANOS PARTICULARES">Motocarros livianos particulares</option>
-                            <option value="MOTOCARROS LIVIANOS PUBLICOS">Motocarros livianos públicos</option>s
                         </select>
                         <!-- <label class="mdl-textfield__label" for="document-type">Tipo de documento</label> -->
                     </div>
@@ -481,12 +480,12 @@
             $('#sync-url').val(savedSyncUrl);
         }
         if (sicovPassword) {
-            $('#sicov-password').val(sicovPassword);
+            // $('#sicov-password').val(sicovPassword);
         }
         if (paynetCredentials) {
             let credentials = JSON.parse(paynetCredentials);
             $('#paynet-username').val(credentials.username);
-            $('#paynet-password').val(credentials.password);
+            // $('#paynet-password').val(credentials.password);
         }
         const sicovUsernameInput = $('#sicov-username');
         const sicovPasswordInput = $('#sicov-password');
