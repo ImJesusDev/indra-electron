@@ -1,14 +1,61 @@
-const { app, BrowserWindow, ipcMain } = require("electron");
+const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const { session } = require("electron");
 const randomUseragent = require("random-useragent");
 
 const userAgent = randomUseragent.getRandom();
 console.log("user agent: ", userAgent);
+
 const filter = {
   urls: ["https://*.runt.com.co/*"],
 };
 let win;
+const isMac = process.platform === "darwin";
+const template = [
+  // { role: 'fileMenu' }
+  {
+    label: "Archivo",
+    submenu: [
+      isMac
+        ? { role: "close", label: "Salir" }
+        : { role: "quit", label: "Salir" },
+    ],
+  },
+  // { role: 'editMenu' }
+  {
+    label: "Opciones",
+    submenu: [
+      {
+        label: "Consola principal",
+        click: async () => {
+          win.openDevTools();
+          win.webContents.send("asynchronous-message", { SAVED: "File Saved" });
+        },
+      },
+      {
+        label: "Consola RUNT",
+        click: async () => {
+          win.webContents.send("openConsole", { platform: "RUNT" });
+        },
+      },
+      {
+        label: "Consola PAYNET",
+        click: async () => {
+          win.webContents.send("openConsole", { platform: "PAYNET" });
+        },
+      },
+      {
+        label: "Consola SICOV",
+        click: async () => {
+          win.webContents.send("openConsole", { platform: "SICOV" });
+        },
+      },
+    ],
+  },
+];
+
+const menu = Menu.buildFromTemplate(template);
+Menu.setApplicationMenu(menu);
 
 function createWindow() {
   win = new BrowserWindow({
@@ -22,7 +69,7 @@ function createWindow() {
 
   win.loadFile("index.html");
   win.maximize();
-  win.removeMenu();
+  // win.removeMenu();
   win.show();
 
   // win.webContents.openDevTools();

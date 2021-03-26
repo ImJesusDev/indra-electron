@@ -70,7 +70,22 @@ sicreWebview.addEventListener("did-stop-loading", (event) => {
     currentSicreState = "plate-entered";
   }
 });
+ipc.on("openConsole", (event, props) => {
+  switch (props.platform) {
+    case "RUNT":
+      runtWebview.openDevTools();
+      break;
+    case "PAYNET":
+      paynetWebview.openDevTools();
+      break;
+    case "SICOV":
+      sicreWebview.openDevTools();
+      break;
 
+    default:
+      break;
+  }
+});
 ipc.on("info-entered", (event, props) => {
   $("#status-report").html("");
   var statusContent =
@@ -491,7 +506,7 @@ function resetForm() {
   $("#document-number").val("");
   $("#cellphone").val("");
   $("#document-type").val("");
-  $("#revision-type").val("");
+  $("#revision-type").val("70");
   $("#vehicle-type-select").val("");
 }
 

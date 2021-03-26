@@ -47,6 +47,7 @@
                     <!-- Description -->
                     <div class="description">
                         <p>Centro de diagnóstico automotor
+                            <span class="font-bold" id="version"></span>
                         </p>
                     </div>
                     <!-- Description -->
@@ -178,6 +179,7 @@
                 <form id="revision-form" class="">
                     <div class="form-title">
                         <h1>Iniciar revisión</h1>
+                        <span id="version-form"></span>
                     </div>
 
                     <div>
@@ -510,6 +512,9 @@
 
     <!-- Manage Updated -->
     <script>
+        const {version} = require('./package.json');
+        document.querySelector('#version').textContent = `version ${version}`;
+        document.querySelector('#version-form').textContent = `version ${version}`;
         const {
             ipcRenderer
         } = require('electron');
