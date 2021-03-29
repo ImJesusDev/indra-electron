@@ -10,6 +10,9 @@ const runtWebview = document.getElementById("runt-webview");
 const paynetWebview = document.getElementById("paynet-webview");
 /* Sicre */
 const sicreWebview = document.getElementById("sicre-webview");
+/* Crypto */
+var CryptoJS = require("crypto-js");
+const secretKey = "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
 
 const log = require("electron-log");
 
@@ -42,9 +45,11 @@ sicreWebview.addEventListener("did-stop-loading", (event) => {
     console.log("login");
     const username = localStorage.getItem("sicov-username");
     const password = localStorage.getItem("sicov-password");
+    let bytes = CryptoJS.AES.decrypt(password, secretKey);
+    let descryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
     const data = {
       username: username,
-      password: password,
+      password: descryptedPassword,
     };
   }
   if (currentSicreState == "enter-plate") {
@@ -95,7 +100,7 @@ ipc.on("info-entered", (event, props) => {
 });
 ipc.on("pleaseClickPay", (event, props) => {
   $("#status-report").html("");
-  var statusContent = '<span>Por favor, presione el boton "Pagar"</span>';
+  var statusContent = '<span>Por favor, presione el botónn "Pagar"</span>';
   $("#status-report").append(statusContent);
   $("#status-report").show();
 });
@@ -323,7 +328,15 @@ function logout() {
     cancelButtonText: "Cancelar",
   }).then(async (result) => {
     if (result.isConfirmed) {
+      let sicovUsername = localStorage.getItem("sicov-username");
+      let savedSicovUrl = localStorage.getItem("sicov-url");
+      let savedSyncUrl = localStorage.getItem("sync-url");
+      let paynetCredentials = localStorage.getItem("paynet-credentials");
       localStorage.clear();
+      localStorage.setItem("sicov-username", sicovUsername);
+      localStorage.setItem("sicov-url", savedSicovUrl);
+      localStorage.setItem("sync-url", savedSyncUrl);
+      localStorage.setItem("paynet-credentials", paynetCredentials);
       $("#login-container").css("display", "flex");
       $("#form-container").hide();
       $("#progress-bar").show();
@@ -341,6 +354,8 @@ function logout() {
       $("#runt-step").removeClass("current");
       $("#sicre-step").removeClass("current");
       $("#initial-step").addClass("current").removeClass("done");
+      $("#paynet-password").val("");
+      $("#sicov-password").val("");
       sicreWebview.send("logOut", true);
     }
   });
@@ -368,14 +383,22 @@ function showForm() {
   /* Store the value of the selected vehicle type */
   const paynetUsername = $("#paynet-username");
   const paynetPassword = $("#paynet-password");
+  let encryptedPaynetPassword = CryptoJS.AES.encrypt(
+    paynetPassword.val(),
+    secretKey
+  ).toString();
   const paynetCredentials = {
     username: paynetUsername.val(),
-    password: paynetPassword.val(),
+    password: encryptedPaynetPassword,
   };
   $("#header-user").text(sicovUsername.val());
   localStorage.setItem("paynet-credentials", JSON.stringify(paynetCredentials));
   localStorage.setItem("sicov-username", sicovUsername.val());
-  localStorage.setItem("sicov-password", sicovPassword.val());
+  let encryptedSicovPassword = CryptoJS.AES.encrypt(
+    sicovPassword.val(),
+    secretKey
+  ).toString();
+  localStorage.setItem("sicov-password", encryptedSicovPassword);
   // localStorage.setItem('auth-token', response.token);
   // const sicreUrl = localStorage.getItem('sicre-url');
   // $('#sicre-webview').attr('src', sicreUrl);
@@ -606,7 +629,13 @@ const checkPaynetCredentials = async () => {
   //         sendVehicleData();
   //     }
   // } else {
-  paynetWebview.send("paynetCredentials", JSON.parse(credentials));
+  let jsonCredentials = JSON.parse(credentials);
+  let bytes = CryptoJS.AES.decrypt(jsonCredentials.password, secretKey);
+  let descryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
+  paynetWebview.send("paynetCredentials", {
+    username: jsonCredentials.username,
+    password: descryptedPassword,
+  });
   sendVehicleData();
   // }
 };
@@ -709,7 +738,7 @@ ipc.on("revision-finished", (event, props) => {
   sicreWebview.send("logOut", true);
   $("#status-report").show();
   $("#status-report").html("");
-  var statusContent = "<span>Formalizacion realizada!</span>";
+  var statusContent = "<span>¡Formalizacion realizada!</span>";
   $("#status-report").append(statusContent);
   setTimeout(() => {
     $("#status-report").html("");
@@ -768,9 +797,11 @@ ipc.on("pinCreated", (event, props) => {
       paynetWebview.send("logOut", true);
       const username = localStorage.getItem("sicov-username");
       const password = localStorage.getItem("sicov-password");
+      let bytes = CryptoJS.AES.decrypt(password, secretKey);
+      let descryptedPassword = bytes.toString(CryptoJS.enc.Utf8);
       const data = {
         username: username,
-        password: password,
+        password: descryptedPassword,
       };
       log.info("[SICOV] Iniciando sesión");
       sicreWebview.send("start-login", data);
@@ -833,7 +864,7 @@ ipc.on("infoCompleted", (event, props) => {
 });
 ipc.on("nextPressed", (event, props) => {
   $("#status-report").html("");
-  var statusContent = "<span>Por favor espere...!</span>";
+  var statusContent = "<span>Por favor espere...</span>";
   $("#status-report").append(statusContent);
   $("#status-report").show("");
 });
@@ -887,7 +918,7 @@ ipc.on("vehicleData", (event, props) => {
                     <li> Fecha vigencia: ${
                       props.data.certifications.expiration
                     } </li>
-                    <li> Ultima solicitud: ${props.data.lastRequest.type}</li>
+                    <li> Última solicitud: ${props.data.lastRequest.type}</li>
                     <li> Estado última solicitud: ${
                       props.data.lastRequest.lastRequestState
                     }</li>
