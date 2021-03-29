@@ -100,7 +100,7 @@ ipc.on("info-entered", (event, props) => {
 });
 ipc.on("pleaseClickPay", (event, props) => {
   $("#status-report").html("");
-  var statusContent = '<span>Por favor, presione el botónn "Pagar"</span>';
+  var statusContent = '<span>Por favor, presione el botón "Pagar"</span>';
   $("#status-report").append(statusContent);
   $("#status-report").show();
 });
