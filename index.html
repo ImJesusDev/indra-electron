@@ -3,7 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title> INDRA </title>
+    <title> Conecta SICOV </title>
     <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
     <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
     <link rel="stylesheet" href="assets/css/styles.css" />
@@ -75,10 +75,14 @@
 
                     <!-- Sicov Password -->
                     <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold " for="password">
+                        
+                        <label class="block text-gray-700 flex mr-4 text-sm font-bold " for="password">
                             Password SICOV
                         </label>
-                        <input value="" onkeyup="sicovInputChange()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="sicov-password" type="password" placeholder="Password SICOV">
+                        <div class="relative">
+                            <input value="" onkeyup="sicovInputChange()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" id="sicov-password" type="password" placeholder="Password SICOV">
+                            <img onmouseover="togglePassword('sicov')" onmouseout="togglePassword('sicov')"  src="assets/images/view.svg"  class="view-icon absolute" title="Mostrar clave" alt="Mostrar">
+                        </div>
                     </div>
                     <!-- Sicov Password -->
 
@@ -111,10 +115,13 @@
 
                     <!-- Paynet Password -->
                     <div class="mb-6">
-                        <label class="block text-gray-700 text-sm font-bold " for="password">
-                            Password Paynet
+                        <label class="block text-gray-700 text-sm font-bold flex mr-4" for="password">
+                            Password Paynet 
                         </label>
-                        <input value="" onkeyup="sicovInputChange()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="paynet-password" type="password" placeholder="Password Paynet">
+                        <div class="relative">
+                            <input value="" onkeyup="sicovInputChange()" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" id="paynet-password" type="password" placeholder="Password Paynet">
+                            <img onmouseover="togglePassword('paynet')" onmouseout="togglePassword('paynet')" src="assets/images/view.svg"  class="view-icon absolute" title="Mostrar clave" alt="Mostrar">
+                        </div>
                     </div>
                     <!-- Paynet User -->
 

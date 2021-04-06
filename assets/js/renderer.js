@@ -38,7 +38,19 @@ paynetWebview.addEventListener("did-stop-loading", async (event) => {
 paynetWebview.addEventListener("did-navigate", (event) => {
   currentPaynetState = event.url;
 });
-
+const togglePassword = (value) => {
+  if (value == "paynet") {
+    const paynetPassword = $("#paynet-password");
+    paynetPassword.attr("type") === "password"
+      ? paynetPassword.attr("type", "text")
+      : paynetPassword.attr("type", "password");
+  } else if (value === "sicov") {
+    const sicovPassword = $("#sicov-password");
+    sicovPassword.attr("type") === "password"
+      ? sicovPassword.attr("type", "text")
+      : sicovPassword.attr("type", "password");
+  }
+};
 /* Capture navigation events */
 sicreWebview.addEventListener("did-stop-loading", (event) => {
   if (currentSicreState == "login") {

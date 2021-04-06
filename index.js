@@ -1,13 +1,13 @@
 const { app, BrowserWindow, ipcMain, Menu } = require("electron");
 const { autoUpdater } = require("electron-updater");
 const { session } = require("electron");
-const randomUseragent = require("random-useragent");
 
-const userAgent = randomUseragent.getRandom();
+const userAgent =
+  "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15";
 console.log("user agent: ", userAgent);
 
 const filter = {
-  urls: ["https://*.runt.com.co/*"],
+  urls: ["https://*.google.com/*"],
 };
 let win;
 const isMac = process.platform === "darwin";
@@ -93,13 +93,13 @@ app
   .then(() => {
     console.log("Checking for updates");
     autoUpdater.checkForUpdatesAndNotify();
-    session.defaultSession.webRequest.onBeforeSendHeaders(
-      filter,
-      (details, callback) => {
-        details.requestHeaders["User-Agent"] = userAgent;
-        callback({ requestHeaders: details.requestHeaders });
-      }
-    );
+    // session.defaultSession.webRequest.onBeforeSendHeaders(
+    //   filter,
+    //   (details, callback) => {
+    //     console.log(details.url);
+    //     callback(details);
+    //   }
+    // );
   });
 
 app.on("window-all-closed", () => {
