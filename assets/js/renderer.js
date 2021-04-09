@@ -202,35 +202,41 @@ async function openSettings() {
 }
 
 function goToRunt() {
-  $("#initial-form").hide();
-  $("#runt-webview").show();
-  $("html,body").scrollTop(0);
-  $("#initial-step").removeClass("current").addClass("done");
-  $("#runt-step").addClass("current");
-  /* Store the value of the selected vehicle type */
-  const plate = $("#vehicle-plate").val();
-  const foreignVehicle = $(
-    "input[name=foreign-vehicle]:checked",
-    "#revision-form"
+  $("#runt-webview").attr(
+    "src",
+    "https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo"
   );
-  const documentNumber = $("#document-number");
-  const documentType = $("#document-type");
-  const cellphone = $("#cellphone");
-  const revisionType = $("#revision-type");
-  const vehicleType = $("#vehicle-type-select");
-  localStorage.setItem("vehicle-type", vehicleType.val());
-  localStorage.setItem("foreign-vehicle", foreignVehicle.val());
-  localStorage.setItem("plate", plate.toUpperCase());
-  localStorage.setItem("document-number", documentNumber.val());
-  localStorage.setItem("document-type", documentType.val());
-  localStorage.setItem("cellphone", cellphone.val());
-  localStorage.setItem("revision-type", revisionType.val());
-  const formData = {
-    plate: plate.toUpperCase(),
-    documentType: documentType.val(),
-    documentNumber: documentNumber.val(),
-  };
-  runtWebview.send("runt-form-data", formData);
+  setTimeout(() => {
+    $("#initial-form").hide();
+    $("#runt-webview").show();
+    $("html,body").scrollTop(0);
+    $("#initial-step").removeClass("current").addClass("done");
+    $("#runt-step").addClass("current");
+    /* Store the value of the selected vehicle type */
+    const plate = $("#vehicle-plate").val();
+    const foreignVehicle = $(
+      "input[name=foreign-vehicle]:checked",
+      "#revision-form"
+    );
+    const documentNumber = $("#document-number");
+    const documentType = $("#document-type");
+    const cellphone = $("#cellphone");
+    const revisionType = $("#revision-type");
+    const vehicleType = $("#vehicle-type-select");
+    localStorage.setItem("vehicle-type", vehicleType.val());
+    localStorage.setItem("foreign-vehicle", foreignVehicle.val());
+    localStorage.setItem("plate", plate.toUpperCase());
+    localStorage.setItem("document-number", documentNumber.val());
+    localStorage.setItem("document-type", documentType.val());
+    localStorage.setItem("cellphone", cellphone.val());
+    localStorage.setItem("revision-type", revisionType.val());
+    const formData = {
+      plate: plate.toUpperCase(),
+      documentType: documentType.val(),
+      documentNumber: documentNumber.val(),
+    };
+    runtWebview.send("runt-form-data", formData);
+  }, 1000);
 }
 
 function sicovInputChange() {
@@ -507,6 +513,10 @@ function selectRevision(id) {
 }
 
 function showRunt() {
+  $("#runt-webview").attr(
+    "src",
+    "https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo"
+  );
   $("#initial-form").css("display", "none");
   $("#paynet-webview").hide();
   $("#sicre-webview").hide();

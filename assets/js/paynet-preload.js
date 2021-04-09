@@ -357,10 +357,6 @@ const setPassword = async (password) => {
 const login = async () => {
   console.log("login");
   const loginBtn = $("#ctl00_cph_StormLogin_LoginButton");
-  const rememberInput = document.getElementById(
-    "ctl00_cph_StormLogin_RememberMe"
-  );
-  rememberInput.checked = false;
   loginBtn.click();
 };
 const logEvent = async (message) => {

@@ -301,7 +301,7 @@ document.addEventListener(
           }, 1000);
         });
       }
-    }, 2000);
+    }, 3000);
   },
   false
 );
@@ -701,19 +701,31 @@ const getRequestInfo = async () => {
 
       if (type !== "Tramite revision tecnico mecanica, ") {
         tempParent = parentRequestDiv;
-        type =
-          parentRequestDiv.parentElement.nextElementSibling.childNodes[4]
-            .childNodes[7].textContent;
+        try {
+          type =
+            parentRequestDiv.parentElement.nextElementSibling.childNodes[4]
+              .childNodes[7].textContent;
+        } catch (err) {
+          type = "No hay trámites de revisión tecnicomecánica";
+        }
         if (type !== "Tramite revision tecnico mecanica, ") {
           tempParent = parentRequestDiv;
-          type =
-            parentRequestDiv.parentElement.nextElementSibling.childNodes[6]
-              .childNodes[7].textContent;
+          try {
+            type =
+              parentRequestDiv.parentElement.nextElementSibling.childNodes[6]
+                .childNodes[7].textContent;
+          } catch (err) {
+            type = "No hay trámites de revisión tecnicomecánica";
+          }
           if (type !== "Tramite revision tecnico mecanica, ") {
             tempParent = parentRequestDiv;
-            type =
-              parentRequestDiv.parentElement.nextElementSibling.childNodes[8]
-                .childNodes[7].textContent;
+            try {
+              type =
+                parentRequestDiv.parentElement.nextElementSibling.childNodes[8]
+                  .childNodes[7].textContent;
+            } catch (err) {
+              type = "No hay trámites de revisión tecnicomecánica";
+            }
             if (type !== "Tramite revision tecnico mecanica, ") {
               type = "No hay trámites de revisión tecnicomecánica";
             }
