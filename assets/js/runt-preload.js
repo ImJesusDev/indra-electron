@@ -20,7 +20,7 @@ let procedencia;
 /* Declare global variables */
 let html;
 /* Html to replace RUNT page */
-let htmlCode = `
+let htmlCode = `<html>
 <style>
 .runt-container {
   display:flex;
@@ -40,7 +40,7 @@ let htmlCode = `
 /* Script with captcha */
 let captchaScript = document.createElement("script");
 captchaScript.src =
-  "https://www.google.com/recaptcha/api.js?onload=onloadCallback&hl=es-149";
+  "https://www.google.com/recaptcha/api.js?onload=onloadCallback&hl=es-149&render=explicit";
 
 /* Method to log events  */
 const logEvent = async (message) => {
@@ -280,22 +280,52 @@ document.addEventListener(
       let armoredInfo = await makeArmoredRequest(params, token);
       let certificationsInfo = await makeCertificationsRequest(params, token);
       await sendData("done", {
-        chasisNumber: parsedResponse.informacionGeneralVehiculo.noChasis,
-        cylinderCapacity: parsedResponse.informacionGeneralVehiculo.cilidraje,
-        plateDate: parsedResponse.informacionGeneralVehiculo.fechaMatricula,
-        make: parsedResponse.informacionGeneralVehiculo.marca,
-        model: parsedResponse.informacionGeneralVehiculo.modelo,
-        line: parsedResponse.informacionGeneralVehiculo.linea,
-        color: parsedResponse.informacionGeneralVehiculo.color,
-        state: parsedResponse.informacionGeneralVehiculo.estadoDelVehiculo,
-        license: parsedResponse.informacionGeneralVehiculo.noLicenciaTransito,
-        vehicleClass: parsedResponse.informacionGeneralVehiculo.claseVehiculo,
-        serviceType: parsedResponse.informacionGeneralVehiculo.tipoServicio,
-        motorNumber: parsedResponse.informacionGeneralVehiculo.noMotor,
-        fuelType: parsedResponse.informacionGeneralVehiculo.tipoCombustible,
-        vinNumber: parsedResponse.informacionGeneralVehiculo.noVin,
+        chasisNumber: parsedResponse.informacionGeneralVehiculo.noChasis
+          ? parsedResponse.informacionGeneralVehiculo.noChasis
+          : "",
+        cylinderCapacity: parsedResponse.informacionGeneralVehiculo.cilidraje
+          ? parsedResponse.informacionGeneralVehiculo.cilidraje
+          : "",
+        plateDate: parsedResponse.informacionGeneralVehiculo.fechaMatricula
+          ? parsedResponse.informacionGeneralVehiculo.fechaMatricula
+          : "",
+        make: parsedResponse.informacionGeneralVehiculo.marca
+          ? parsedResponse.informacionGeneralVehiculo.marca
+          : "",
+        model: parsedResponse.informacionGeneralVehiculo.modelo
+          ? parsedResponse.informacionGeneralVehiculo.modelo
+          : "",
+        line: parsedResponse.informacionGeneralVehiculo.linea
+          ? parsedResponse.informacionGeneralVehiculo.linea
+          : "",
+        color: parsedResponse.informacionGeneralVehiculo.color
+          ? parsedResponse.informacionGeneralVehiculo.color
+          : "",
+        state: parsedResponse.informacionGeneralVehiculo.estadoDelVehiculo
+          ? parsedResponse.informacionGeneralVehiculo.estadoDelVehiculo
+          : "",
+        license: parsedResponse.informacionGeneralVehiculo.noLicenciaTransito
+          ? parsedResponse.informacionGeneralVehiculo.noLicenciaTransito
+          : "",
+        vehicleClass: parsedResponse.informacionGeneralVehiculo.claseVehiculo
+          ? parsedResponse.informacionGeneralVehiculo.claseVehiculo
+          : "",
+        serviceType: parsedResponse.informacionGeneralVehiculo.tipoServicio
+          ? parsedResponse.informacionGeneralVehiculo.tipoServicio
+          : "",
+        motorNumber: parsedResponse.informacionGeneralVehiculo.noMotor
+          ? parsedResponse.informacionGeneralVehiculo.noMotor
+          : "",
+        fuelType: parsedResponse.informacionGeneralVehiculo.tipoCombustible
+          ? parsedResponse.informacionGeneralVehiculo.tipoCombustible
+          : "",
+        vinNumber: parsedResponse.informacionGeneralVehiculo.noVin
+          ? parsedResponse.informacionGeneralVehiculo.noVin
+          : "",
         procedencia: procedencia,
-        serieNumber: parsedResponse.informacionGeneralVehiculo.noSerie,
+        serieNumber: parsedResponse.informacionGeneralVehiculo.noSerie
+          ? parsedResponse.informacionGeneralVehiculo.noSerie
+          : "",
         certifications: certificationsInfo,
         armoredInfo,
         lastRequest: lastRequestInfo,
