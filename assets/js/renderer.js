@@ -234,6 +234,7 @@ function goToRunt() {
       plate: plate.toUpperCase(),
       documentType: documentType.val(),
       documentNumber: documentNumber.val(),
+      procedencia: foreignVehicle.val(),
     };
     runtWebview.send("runt-form-data", formData);
   }, 1000);

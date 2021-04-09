@@ -26,10 +26,16 @@ const template = [
     label: "Opciones",
     submenu: [
       {
+        label: "Reiniciar",
+        click: async () => {
+          app.relaunch();
+          app.quit();
+        },
+      },
+      {
         label: "Consola principal",
         click: async () => {
           win.openDevTools();
-          win.webContents.send("asynchronous-message", { SAVED: "File Saved" });
         },
       },
       {
