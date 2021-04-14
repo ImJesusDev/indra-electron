@@ -7,7 +7,7 @@ const userAgent =
 console.log("user agent: ", userAgent);
 
 const filter = {
-  urls: ["https://*.google.com/*"],
+  urls: ["https://*/*"],
 };
 let win;
 const isMac = process.platform === "darwin";
@@ -91,6 +91,7 @@ function createWindow() {
   //Paynet2020*
   //ultraconcept
   //Ultraconcept123*
+  // Extranjero: AF190CM
 }
 
 app

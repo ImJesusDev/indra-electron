@@ -31,7 +31,7 @@ let htmlCode = `<html>
 }
 </style>
 <div class="runt-container">
-  <h1> Solucione el captcha para continuar. </h1>
+  <h1> Soluciona el captcha para continuar. </h1>
   <form action="?" method="POST">
     <div id="html_element"></div>
   </form>
@@ -52,7 +52,7 @@ ipc.on("runt-form-data", async (event, props) => {
   userDocument = props.documentNumber;
   userVehiclePlate = props.plate;
   userDocumentType = props.documentType;
-  procedencia = props.procedencia == "Si" ? "EXTRANJERA" : "NACIONAL";
+  procedencia = props.procedencia == "Si" ? "EXTRANJERO" : "NACIONAL";
 });
 
 /* On page load, replace html and insert scripts */
@@ -87,7 +87,7 @@ document.addEventListener(
         procedencia: procedencia,
         tipoConsulta: "1",
         vin: null,
-        noDocumento: userDocument,
+        noDocumento: procedencia == "EXTRANJERO" ? null : userDocument,
         noPlaca: userVehiclePlate,
         soat: null,
         codigoSoat: null,
@@ -218,12 +218,17 @@ document.addEventListener(
         `${urlSolicitudes}?${new Date().getMilliseconds()}`,
         config
       );
+      let lastRequestState = "N/A";
+      let lastRequestEntity = "N/A";
+      let lastRequestDate = "N/A";
+      console.log(solicitudResponse);
+      if (!solicitudResponse.data) {
+        return { lastRequestState, lastRequestEntity, lastRequestDate, type };
+      }
       let replacedResponse = solicitudResponse.data.replace(")]}'", "");
       let parsedResponse = JSON.parse(replacedResponse);
       logEvent(`[RUNT] Respuesta: ${JSON.stringify(parsedResponse)}`);
-      let lastRequestState = "N/A";
-      let lastRequestEntity = "N/A";
-      let lastRequestDate = "N/a";
+
       let type = "No hay trámites de revisión tecnicomecánica";
       for (const tramite of parsedResponse.data) {
         if (
@@ -252,8 +257,12 @@ document.addEventListener(
         config
       );
       let replacedResponse = runtResponse.data.replace(")]}'", "");
+      logEvent(`[RUNT] Respuesta: ${JSON.stringify(replacedResponse)}`);
       let parsedResponse = JSON.parse(replacedResponse);
-      logEvent(`[RUNT] Respuesta: ${JSON.stringify(parsedResponse)}`);
+      if (parsedResponse.error) {
+        ipc.sendTo(1, "runt-error", { message: parsedResponse.mensajeError });
+        return;
+      }
       let token = parsedResponse.token;
       await sendData("vehicleInfo", {
         chasisNumber: parsedResponse.informacionGeneralVehiculo.noChasis,
