@@ -113,7 +113,11 @@ document.addEventListener(
       let parsedResponse = JSON.parse(replacedResponse);
       logEvent(`[RUNT] Respuesta: ${JSON.stringify(parsedResponse)}`);
       if (parsedResponse.data && parsedResponse.data.length) {
-        return parsedResponse.data[0].estado;
+        return {
+          state: parsedResponse.data[0].estado,
+          date: parsedResponse.data[0].fechaVencimiento,
+          poliza: parsedResponse.data[0].noPoliza,
+        };
       }
       return "N/A";
     };
@@ -281,6 +285,8 @@ document.addEventListener(
         vinNumber: parsedResponse.informacionGeneralVehiculo.noVin,
         procedencia: procedencia,
         serieNumber: parsedResponse.informacionGeneralVehiculo.noSerie,
+        tipoCarroceria:
+          parsedResponse.informacionGeneralVehiculo.tipoCarroceria,
       });
 
       let lastRequestInfo = await makeRequestsSearch(params, token);
@@ -330,6 +336,22 @@ document.addEventListener(
           : "",
         vinNumber: parsedResponse.informacionGeneralVehiculo.noVin
           ? parsedResponse.informacionGeneralVehiculo.noVin
+          : "",
+        tipoCarroceria: parsedResponse.informacionGeneralVehiculo.tipoCarroceria
+          ? parsedResponse.informacionGeneralVehiculo.tipoCarroceria
+          : "",
+        organismoTransito: parsedResponse.informacionGeneralVehiculo
+          .organismoTransito
+          ? parsedResponse.informacionGeneralVehiculo.organismoTransito
+          : "",
+        clasicoAntiguo: parsedResponse.informacionGeneralVehiculo.clasicoAntiguo
+          ? parsedResponse.informacionGeneralVehiculo.clasicoAntiguo
+          : "",
+        puertas: parsedResponse.informacionGeneralVehiculo.puertas
+          ? parsedResponse.informacionGeneralVehiculo.puertas
+          : "",
+        CantPuertas: parsedResponse.informacionGeneralVehiculo.CantPuertas
+          ? parsedResponse.informacionGeneralVehiculo.CantPuertas
           : "",
         procedencia: procedencia,
         serieNumber: parsedResponse.informacionGeneralVehiculo.noSerie

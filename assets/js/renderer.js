@@ -148,20 +148,20 @@ sicreWebview.addEventListener("did-navigate", (event) => {
       currentSicreState = "enter-plate";
     } else {
       // Revision finished
-      console.log("finished by url");
-      $("#status-report").show();
-      $("#status-report").html("");
-      var statusContent = "<span>¡Formalización realizada!</span>";
-      $("#status-report").append(statusContent);
-      setTimeout(() => {
-        $("#status-report").html("");
-        $("#status-report").hide();
-      }, 3000);
-      $("#paynet-step").removeClass("done");
-      $("#runt-step").removeClass("done");
-      $("#initial-step").addClass("current").removeClass("done");
-      $("#sicre-webview").hide();
-      $("#initial-form").show();
+      // console.log("finished by url");
+      // $("#status-report").show();
+      // $("#status-report").html("");
+      // var statusContent = "<span>¡Formalización realizada!</span>";
+      // $("#status-report").append(statusContent);
+      // setTimeout(() => {
+      //   $("#status-report").html("");
+      //   $("#status-report").hide();
+      // }, 3000);
+      // $("#paynet-step").removeClass("done");
+      // $("#runt-step").removeClass("done");
+      // $("#initial-step").addClass("current").removeClass("done");
+      // $("#sicre-webview").hide();
+      // $("#initial-form").show();
     }
   }
 });
@@ -707,6 +707,12 @@ const submitData = async (data) => {
       CantEjes: data.technicalData.totalAxis,
       Blindado: data.armoredInfo.isArmored,
       NivelBlindaje: data.armoredInfo.armorLevel,
+      FechaSoat: data.soat.date,
+      NumeroPoliza: data.soat.noPoliza,
+      TipoCarroceria: data.tipoCarroceria,
+      AutoridadTransito: data.organismoTransito,
+      ClasicoAntiguo: data.clasicoAntiguo,
+      CantPuertas: data.puertas,
     },
   };
   log.info(JSON.stringify(formData));
@@ -817,7 +823,7 @@ ipc.on("pinCreated", (event, props) => {
     showCancelButton: true,
     confirmButtonColor: "#79c5b4",
     cancelButtonColor: "#e88aa2",
-    confirmButtonText: "Continuar en SICOV",
+    confirmButtonText: "Continua en SICOV",
     cancelButtonText: "Cancelar",
   }).then(async (result) => {
     if (result.isConfirmed) {
@@ -888,7 +894,7 @@ ipc.on("loadingPinInfo", (event, props) => {
 ipc.on("infoCompleted", (event, props) => {
   $("#status-report").html("");
   var statusContent =
-    '<span>Información completada, presiona el botón "Siguiente"...</span>';
+    '<span>Información completada, presiona el botón "Siguiente"</span>';
   $("#status-report").append(statusContent);
 });
 ipc.on("nextPressed", (event, props) => {
@@ -935,7 +941,7 @@ ipc.on("vehicleData", (event, props) => {
                     <li> Línea:${props.data.line} </li>
                     <li> Licencia:${props.data.license} </li>
                     <li> Estado del vehículo: ${props.data.state}</li>
-                    <li> Estado Soat: ${props.data.soat} </li>
+                    <li> Estado Soat: ${props.data.soat.state} </li>
                     <li> Último certificado: ${
                       props.data.certifications.type
                     } </li>
