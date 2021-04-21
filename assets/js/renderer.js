@@ -106,13 +106,13 @@ ipc.on("openConsole", (event, props) => {
 ipc.on("info-entered", (event, props) => {
   $("#status-report").html("");
   var statusContent =
-    '<span>Por favor, verifique la información y haga click en "Formalizar revisión"</span>';
+    '<span>Verifica la información y da clic en "Formalizar revisión"</span>';
   $("#status-report").append(statusContent);
   $("#status-report").show();
 });
 ipc.on("pleaseClickPay", (event, props) => {
   $("#status-report").html("");
-  var statusContent = '<span>Por favor, presione el botón "Pagar"</span>';
+  var statusContent = '<span>Presiona el botón "Pagar"</span>';
   $("#status-report").append(statusContent);
   $("#status-report").show();
 });
@@ -132,7 +132,8 @@ sicreWebview.addEventListener("did-navigate", (event) => {
     currentSicreState = "login";
   } else if (event.url.indexOf("SeleccionarSucursal") >= 0) {
     $("#status-report").html("");
-    var statusContent = "<span>Por favor, selecciona la sucursal</span>";
+    var statusContent =
+      "<span>Selecciona la sucursal a la cual pertenezcas</span>";
     $("#status-report").append(statusContent);
     $("#status-report").show();
     sicreWebview.send("sucursal-selection", true);
@@ -382,7 +383,7 @@ function logout() {
 
 function showForm() {
   $("#status-report").html("");
-  var statusContent = "<span>Iniciando Sesión!</span>";
+  var statusContent = "<span>Iniciando Sesión</span>";
   $("#status-report").append(statusContent);
   $("#status-report").show();
   const sicovUsername = $("#sicov-username");
@@ -804,7 +805,7 @@ ipc.on("pinCreated", (event, props) => {
   localStorage.setItem("transaction-number", props.transactionNumber);
   Swal.fire({
     title: "¡PIN generado!",
-    text: "Se ha generado el ping correctamente. ¿Desea continuar a SICOV?",
+    text: "Se ha generado el pin correctamente. ¿Desea continuar a SICOV?",
     icon: "success",
     html: `
         <ul>
@@ -816,7 +817,7 @@ ipc.on("pinCreated", (event, props) => {
     showCancelButton: true,
     confirmButtonColor: "#79c5b4",
     cancelButtonColor: "#e88aa2",
-    confirmButtonText: "Continuar a SICOV",
+    confirmButtonText: "Continuar en SICOV",
     cancelButtonText: "Cancelar",
   }).then(async (result) => {
     if (result.isConfirmed) {
@@ -837,7 +838,7 @@ ipc.on("pinCreated", (event, props) => {
       // var statusContent = '<span>Cargando SICRE</span>';
       // $('#status-report').append(statusContent);
       $("#status-report").html("");
-      var statusContent = "<span>Iniciando sesión.</span>";
+      var statusContent = "<span>Iniciando sesión</span>";
       $("#status-report").append(statusContent);
       $("#status-report").show();
       $("#paynet-webview").hide();
@@ -887,7 +888,7 @@ ipc.on("loadingPinInfo", (event, props) => {
 ipc.on("infoCompleted", (event, props) => {
   $("#status-report").html("");
   var statusContent =
-    '<span>Información completada, presione el botón "Siguiente"...</span>';
+    '<span>Información completada, presiona el botón "Siguiente"...</span>';
   $("#status-report").append(statusContent);
 });
 ipc.on("nextPressed", (event, props) => {
@@ -961,7 +962,7 @@ ipc.on("vehicleData", (event, props) => {
         showCancelButton: true,
         confirmButtonColor: "#79c5b4",
         cancelButtonColor: "#e88aa2",
-        confirmButtonText: "Continuar a Paynet",
+        confirmButtonText: "Continua en Paynet",
         cancelButtonText: "Cancelar",
       }).then(async (result) => {
         if (result.isConfirmed) {
