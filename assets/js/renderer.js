@@ -2,6 +2,8 @@
 const { ipcRenderer: ipc } = require("electron");
 /* Alerts */
 const Swal = require("sweetalert2");
+/* Axios */
+const axios = require("axios");
 
 const moment = require("moment");
 /* Runt */
@@ -13,9 +15,12 @@ const sicreWebview = document.getElementById("sicre-webview");
 /* Crypto */
 var CryptoJS = require("crypto-js");
 const secretKey = "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-
+/* File system */
+const fs = require("fs");
+const configData = fs.readFileSync("settings/settings.json");
+const json = configData.toString("utf8");
+const settings = JSON.parse(json);
 const log = require("electron-log");
-
 let currentSicreState;
 let currentPaynetState;
 
@@ -667,6 +672,33 @@ const checkPaynetCredentials = async () => {
   sendVehicleData();
   // }
 };
+
+const logUser = async (username) => {
+  const syncUrl = localStorage.getItem("sync-url");
+  log.info(`[SICRE] setLogUsuario ${username}`);
+  let ip = "0.0.0.0";
+  try {
+    const ipResponse = await axios.get("http://checkip.amazonaws.com/");
+    ip = ipResponse.data;
+  } catch (error) {
+    log.error(`Error obteniendo IP: ${error.message}`);
+  }
+  const formData = {
+    parametro: {
+      ID_CDA: settings.ID_CDA,
+      NombreUsuario: username,
+      FechaIngreso: new Date(),
+      NombreAplicacion: "ConectaSicov",
+      DireccionIP: ip.replace(/(\r\n|\n|\r)/gm, ""),
+    },
+  };
+
+  const setLogResponse = await axios.post(`${syncUrl}setLogUsuario`, formData);
+  log.info(`[SICRE] Respuesta setLogUsuario ${JSON.stringify(setLogResponse)}`);
+};
+ipc.on("log-user", async (event, props) => {
+  await logUser(props);
+});
 const submitData = async (data) => {
   let capacidadDeCarga = data.technicalData.totalPassengers
     ? data.technicalData.totalPassengers
@@ -709,6 +741,7 @@ const submitData = async (data) => {
       NivelBlindaje: data.armoredInfo.armorLevel,
       FechaSoat: data.soat.date,
       NumeroPoliza: data.soat.noPoliza,
+      EntidadAseguradora: data.soat.entidadExpideSoat,
       TipoCarroceria: data.tipoCarroceria,
       AutoridadTransito: data.organismoTransito,
       ClasicoAntiguo: data.clasicoAntiguo,
@@ -719,7 +752,7 @@ const submitData = async (data) => {
 
   $.ajax({
     type: "POST",
-    url: syncUrl,
+    url: `${syncUrl}setInfoVehiculo`,
     data: JSON.stringify(formData),
     contentType: "application/json",
     dataType: "json",
@@ -837,7 +870,7 @@ ipc.on("pinCreated", (event, props) => {
         username: username,
         password: descryptedPassword,
       };
-      log.info("[SICOV] Iniciando sesión");
+      log.info("[SICRE] Iniciando sesión");
       sicreWebview.send("start-login", data);
       // $('#status-report').show();
       // $('#status-report').html('');

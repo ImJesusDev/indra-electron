@@ -1,6 +1,6 @@
 {
     "name": "Indra",
-    "version": "1.1.17",
+    "version": "1.1.18",
     "description": "Electron project",
     "main": "index.js",
     "repository": {
@@ -10,7 +10,8 @@
     "scripts": {
         "start": "electron .",
         "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --arch=ia32  --prune=true  --publish never --out=release-builds --version-string.CompanyName=Movers --version-string.FileDescription=Runt-Integration --version-string.ProductName=\"Runt Integration\"",
-        "publish-win": "electron-builder build --win --publish always"
+        "publish-win": "electron-builder build --win --publish always",
+        "build": "electron-builder build --win"
     },
     "author": "",
     "license": "ISC",

@@ -16,6 +16,7 @@ ipc.on("sucursal-selection", async (event, props) => {
   console.log("se debe seleccionar la sucursal");
 });
 ipc.on("start-login", async (event, props) => {
+  localStorage.setItem("username", props.username);
   console.log("starts", props);
   setTimeout(async () => {
     await setUsername(props.username);
@@ -55,6 +56,8 @@ ipc.on("input-form-data", async (event, props) => {
   await addMakeRevisionListener();
 });
 ipc.on("enter-plate", async (event, props) => {
+  const username = localStorage.getItem("username");
+  ipc.sendTo(1, "log-user", username);
   logEvent(`[SICRE] Ingresando placa`);
   localStorage.setItem("plate", props.plate);
   localStorage.setItem("revisionType", props.revisionType);

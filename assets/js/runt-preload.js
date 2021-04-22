@@ -117,6 +117,7 @@ document.addEventListener(
           state: parsedResponse.data[0].estado,
           date: parsedResponse.data[0].fechaVencimiento,
           poliza: parsedResponse.data[0].noPoliza,
+          entidad: parsedResponse.data[0].entidadExpideSoat,
         };
       }
       return "N/A";
