@@ -117,7 +117,7 @@ ipc.on("info-entered", (event, props) => {
 });
 ipc.on("pleaseClickPay", (event, props) => {
   $("#status-report").html("");
-  var statusContent = '<span>Presiona el botón "Pagar"</span>';
+  var statusContent = "<span>Finalizando...</span>";
   $("#status-report").append(statusContent);
   $("#status-report").show();
 });
@@ -927,7 +927,7 @@ ipc.on("loadingPinInfo", (event, props) => {
 ipc.on("infoCompleted", (event, props) => {
   $("#status-report").html("");
   var statusContent =
-    '<span>Información completada, presiona el botón "Siguiente"</span>';
+    "<span>Información completada, por favor espere...</span>";
   $("#status-report").append(statusContent);
 });
 ipc.on("nextPressed", (event, props) => {

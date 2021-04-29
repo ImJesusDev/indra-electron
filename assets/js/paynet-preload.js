@@ -120,6 +120,7 @@ const setListeners = async () => {
         await getPinInfo();
       }, 3000);
     });
+    continueBtn.click();
   }
 };
 const navigateToPing = async () => {
@@ -253,6 +254,7 @@ const getPinInfo = async () => {
         });
       }, 3000);
     });
+    payBtn.click();
   }
 };
 
