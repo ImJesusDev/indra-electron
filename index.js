@@ -70,6 +70,8 @@ function createWindow() {
     webPreferences: {
       nodeIntegration: true,
       webviewTag: true,
+      allowRunningInsecureContent: true,
+      contextIsolation: false,
     },
   });
 
@@ -88,7 +90,7 @@ function createWindow() {
   //HKQ558
   //51914792
   //123123123
-  //Paynet2020*
+  //Paynet2021*
   //ultraconcept
   //Ultraconcept123*
   // Extranjero: AF190CM

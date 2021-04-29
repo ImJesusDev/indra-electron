@@ -109,17 +109,19 @@ ipc.on("openConsole", (event, props) => {
   }
 });
 ipc.on("info-entered", (event, props) => {
+  $("#status-report").removeClass("full");
   $("#status-report").html("");
   var statusContent =
     '<span>Verifica la información y da clic en "Formalizar revisión"</span>';
   $("#status-report").append(statusContent);
-  $("#status-report").show();
+  $("#status-report").css("display", "flex");
 });
 ipc.on("pleaseClickPay", (event, props) => {
   $("#status-report").html("");
   var statusContent = "<span>Finalizando...</span>";
   $("#status-report").append(statusContent);
-  $("#status-report").show();
+  $("#status-report").css("display", "flex");
+  $("#status-report").addClass("full");
 });
 
 ipc.on("paynetLoginError", (event, props) => {
@@ -127,7 +129,7 @@ ipc.on("paynetLoginError", (event, props) => {
   var statusContent =
     "<span>Por favor verifique sus credenciales, y haga click en enviar!</span>";
   $("#status-report").append(statusContent);
-  $("#status-report").show();
+  $("#status-report").css("display", "flex");
 });
 
 sicreWebview.addEventListener("did-navigate", (event) => {
@@ -136,17 +138,18 @@ sicreWebview.addEventListener("did-navigate", (event) => {
     console.log("here");
     currentSicreState = "login";
   } else if (event.url.indexOf("SeleccionarSucursal") >= 0) {
+    $("#status-report").removeClass("full");
     $("#status-report").html("");
     var statusContent =
       "<span>Selecciona la sucursal a la cual pertenezcas</span>";
     $("#status-report").append(statusContent);
-    $("#status-report").show();
+    $("#status-report").css("display", "flex");
     sicreWebview.send("sucursal-selection", true);
   } else if (event.url.indexOf("?Placa") >= 0) {
     $("#status-report").html("");
     var statusContent = "<span>Ingresando Información!</span>";
     $("#status-report").append(statusContent);
-    $("#status-report").show();
+    $("#status-report").css("display", "flex");
     sicreWebview.send("input-form-data", true);
   } else if (event.url.indexOf("FormalizacionRevision") >= 0) {
     if (currentSicreState !== "plate-entered") {
@@ -154,7 +157,7 @@ sicreWebview.addEventListener("did-navigate", (event) => {
     } else {
       // Revision finished
       // console.log("finished by url");
-      // $("#status-report").show();
+      // $("#status-report").css("display", "flex");
       // $("#status-report").html("");
       // var statusContent = "<span>¡Formalización realizada!</span>";
       // $("#status-report").append(statusContent);
@@ -390,7 +393,8 @@ function showForm() {
   $("#status-report").html("");
   var statusContent = "<span>Iniciando Sesión</span>";
   $("#status-report").append(statusContent);
-  $("#status-report").show();
+  $("#status-report").css("display", "flex");
+  $("#status-report").addClass("full");
   const sicovUsername = $("#sicov-username");
   const sicovPassword = $("#sicov-password");
   const sicovUrl = $("#sicov-url");
@@ -803,7 +807,7 @@ ipc.on("logEvent", (event, props) => {
 ipc.on("revision-finished", (event, props) => {
   console.log("finished");
   sicreWebview.send("logOut", true);
-  $("#status-report").show();
+  $("#status-report").css("display", "flex");
   $("#status-report").html("");
   var statusContent = "<span>¡Formalizacion realizada!</span>";
   $("#status-report").append(statusContent);
@@ -879,7 +883,8 @@ ipc.on("pinCreated", (event, props) => {
       $("#status-report").html("");
       var statusContent = "<span>Iniciando sesión</span>";
       $("#status-report").append(statusContent);
-      $("#status-report").show();
+      $("#status-report").css("display", "flex");
+      $("#status-report").addClass("full");
       $("#paynet-webview").hide();
       // $('#paynet-webview').attr('src', 'https://indra.paynet.com.co:14443/InformacionSeguridad.aspx');
       $("#sicre-webview").show();
@@ -918,7 +923,8 @@ ipc.on("pinRedirect", (event, props) => {
 });
 ipc.on("loadingPinInfo", (event, props) => {
   $("#status-report").html("");
-  $("#status-report").show();
+  $("#status-report").css("display", "flex");
+  $("#status-report").addClass("full");
   var statusContent =
     "<span>Ingresando información, por favor espere...</span>";
   $("#status-report").append(statusContent);
@@ -939,7 +945,8 @@ ipc.on("nextPressed", (event, props) => {
 
 ipc.on("vehicleData", (event, props) => {
   if (props.type === "vehicleInfo") {
-    $("#status-report").show();
+    $("#status-report").css("display", "flex");
+    $("#status-report").addClass("full");
     $("#status-report").html("");
     var statusContent = "<span>Consultando información del vehículo</span>";
     localStorage.setItem("vehicle-model", props.data.model);
@@ -1008,7 +1015,8 @@ ipc.on("vehicleData", (event, props) => {
           // paynetWebview.send('navigate-to-pin', true);
           await checkPaynetCredentials();
           // $('#runt-webview').attr('src', 'https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo');
-          $("#status-report").show();
+          $("#status-report").css("display", "flex");
+          $("#status-report").addClass("full");
           $("#status-report").html("");
           var statusContent = "<span>Cargando Paynet</span>";
           $("#status-report").append(statusContent);
