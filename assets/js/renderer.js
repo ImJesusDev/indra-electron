@@ -954,19 +954,19 @@ ipc.on("loadingPinInfo", (event, props) => {
   $("#status-report").css("display", "flex");
   $("#status-report").addClass("full");
   var statusContent =
-    "<span>Ingresando información, por favor espere...</span>";
+    "<span>Ingresando información, por favor espera...</span>";
   $("#status-report").append(statusContent);
 });
 
 ipc.on("infoCompleted", (event, props) => {
   $("#status-report").html("");
   var statusContent =
-    "<span>Información completada, por favor espere...</span>";
+    "<span>Información completada, por favor espera...</span>";
   $("#status-report").append(statusContent);
 });
 ipc.on("nextPressed", (event, props) => {
   $("#status-report").html("");
-  var statusContent = "<span>Por favor espere...</span>";
+  var statusContent = "<span>Por favor espera...</span>";
   $("#status-report").append(statusContent);
   $("#status-report").show("");
 });
@@ -1010,6 +1010,9 @@ ipc.on("vehicleData", (event, props) => {
                     <li> Licencia:${props.data.license} </li>
                     <li> Estado del vehículo: ${props.data.state}</li>
                     <li> Estado Soat: ${props.data.soat.state} </li>
+                    <li> Fecha fin de vigencia Soat: ${
+                      props.data.soat.date
+                    } </li>
                     <li> Último certificado: ${
                       props.data.certifications.type
                     } </li>
