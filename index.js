@@ -26,10 +26,9 @@ const template = [
     label: "Opciones",
     submenu: [
       {
-        label: "Reiniciar",
+        label: "Reiniciar revisión",
         click: async () => {
-          app.relaunch();
-          app.quit();
+          win.webContents.send("reload");
         },
       },
       {
@@ -95,6 +94,9 @@ function createWindow() {
   //Ultraconcept123*
   // Extranjero: AF190CM
   // QrH#e*Is
+
+  // SZV02E
+  // 80069756
 }
 
 app

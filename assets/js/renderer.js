@@ -108,6 +108,9 @@ ipc.on("openConsole", (event, props) => {
       break;
   }
 });
+ipc.on("reload", (event, props) => {
+  showInitialForm();
+});
 ipc.on("info-entered", (event, props) => {
   $("#status-report").removeClass("full");
   $("#status-report").html("");
@@ -130,6 +133,25 @@ ipc.on("paynetLoginError", (event, props) => {
     "<span>Por favor verifique sus credenciales, y haga click en enviar!</span>";
   $("#status-report").append(statusContent);
   $("#status-report").css("display", "flex");
+});
+ipc.on("paynetConfirm", (event, props) => {
+  let msg = props.msg;
+  Swal.fire({
+    title: "Confirmación",
+    text: msg,
+    icon: "warning",
+    showCancelButton: true,
+    confirmButtonColor: "#79c5b4",
+    cancelButtonColor: "#e88aa2",
+    confirmButtonText: "Continuar",
+    cancelButtonText: "Cancelar",
+  }).then(async (result) => {
+    if (result.isConfirmed) {
+      paynetWebview.send("pinConfirmation", true);
+    } else {
+      showInitialForm();
+    }
+  });
 });
 
 sicreWebview.addEventListener("did-navigate", (event) => {
@@ -384,7 +406,8 @@ function logout() {
       $("#initial-step").addClass("current").removeClass("done");
       $("#paynet-password").val("");
       $("#sicov-password").val("");
-      sicreWebview.send("logOut", true);
+      $("#sicre-webview").attr("src", savedSicovUrl);
+      // sicreWebview.send("logOut", true);
     }
   });
 }
@@ -570,9 +593,11 @@ function showInitialForm() {
   runtWebview.send("newRequest", true);
   resetForm();
   log.info("Cerrando sesión SICOV");
-  sicreWebview.send("logOut", true);
-  log.info("Cerrando sesión PAYNET");
+  // sicreWebview.send("logOut", true);
+  let savedSicovUrl = localStorage.getItem("sicov-url");
   paynetWebview.send("logOut", true);
+  log.info("Cerrando sesión PAYNET");
+  $("#sicre-webview").attr("src", savedSicovUrl);
   $("#initial-form").css("display", "flex");
   $("#status-report").html("");
   $("#status-report").hide();
@@ -744,8 +769,8 @@ const submitData = async (data) => {
       Blindado: data.armoredInfo.isArmored,
       NivelBlindaje: data.armoredInfo.armorLevel,
       FechaSoat: data.soat.date,
-      NumeroPoliza: data.soat.noPoliza,
-      EntidadAseguradora: data.soat.entidadExpideSoat,
+      NumeroPoliza: data.soat.poliza,
+      EntidadAseguradora: data.soat.entidad,
       TipoCarroceria: data.tipoCarroceria,
       AutoridadTransito: data.organismoTransito,
       ClasicoAntiguo: data.clasicoAntiguo,
@@ -806,7 +831,10 @@ ipc.on("logEvent", (event, props) => {
 
 ipc.on("revision-finished", (event, props) => {
   console.log("finished");
-  sicreWebview.send("logOut", true);
+  // sicreWebview.send("logOut", true);
+  let savedSicovUrl = localStorage.getItem("sicov-url");
+  $("#sicre-webview").attr("src", savedSicovUrl);
+  paynetWebview.send("logOut", true);
   $("#status-report").css("display", "flex");
   $("#status-report").html("");
   var statusContent = "<span>¡Formalizacion realizada!</span>";

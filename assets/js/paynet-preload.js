@@ -1,5 +1,8 @@
 const { ipcRenderer: ipc } = require("electron");
 const path = require("path");
+
+let confirmBtn;
+let cancelBtn;
 ipc.on("checkForErrors", async (event, props) => {
   let errors = document.getElementById("ctl00_cph_divlblError");
   if (errors) {
@@ -26,6 +29,46 @@ ipc.on("checkForErrors", async (event, props) => {
 ipc.on("logOut", async (event, props) => {
   await logEvent(`[PAYNET] -> Cerrando sesión`);
   await logOut();
+});
+ipc.on("pinConfirmation", async (event, props) => {
+  confirmBtn.click();
+  await logEvent(`[PAYNET] -> Obteniendo información del PIN`);
+  setTimeout(async () => {
+    /* Get the pin number */
+    const pinSpan = $("#ctl00_cph_lblCodigoPinResumen");
+    const pinNumber = pinSpan.text();
+    /* Get the transaction number */
+    let transactionXpath = "//th[text()='Número de Transacción ']";
+    let transactionMatchingElement = document.evaluate(
+      transactionXpath,
+      document,
+      null,
+      XPathResult.FIRST_ORDERED_NODE_TYPE,
+      null
+    ).singleNodeValue;
+    let transactionParentElement = transactionMatchingElement.parentElement;
+    let transactionData =
+      transactionParentElement.nextElementSibling.childNodes[3];
+    let transactionNumber = transactionData.textContent;
+    /* Get the pin value */
+    const pinValueSpan = $("#ctl00_cph_txtValorPinResumen");
+    const pinValue = pinValueSpan.text();
+
+    console.log("Pay listener");
+    await logEvent(`[PAYNET] -> Información obtenida:`);
+    await logEvent(
+      `[PAYNET] ${JSON.stringify({
+        pin: pinNumber,
+        transactionNumber: transactionNumber,
+        pinValue: pinValue,
+      })}`
+    );
+    ipc.sendTo(1, "pinCreated", {
+      pin: pinNumber,
+      transactionNumber: transactionNumber,
+      pinValue: pinValue,
+    });
+  }, 1000);
 });
 ipc.on("paynetCredentials", async (event, props) => {
   await logEvent(`[PAYNET] -> Ingresando credenciales`);
@@ -163,59 +206,25 @@ const inputData = async () => {
 const getPinInfo = async () => {
   await logEvent(`[PAYNET] -> Obteniendo botón 'Pagar'`);
   const payBtn = document.getElementById("ctl00_cph_btnPagar");
-  ipc.sendTo(1, "pleaseClickPay", true);
   console.log(payBtn);
   if (payBtn) {
     payBtn.addEventListener("click", async () => {
       setTimeout(async () => {
-        await logEvent(`[PAYNET] -> Obteniendo información del PIN`);
-        console.log("get pin info");
-        /* Get the pin number */
-        const pinSpan = $("#ctl00_cph_lblCodigoPinResumen");
-        const pinNumber = pinSpan.text();
-        /* Get the transaction number */
-        let transactionXpath = "//th[text()='Número de Transacción ']";
-        let transactionMatchingElement = document.evaluate(
-          transactionXpath,
-          document,
-          null,
-          XPathResult.FIRST_ORDERED_NODE_TYPE,
-          null
-        ).singleNodeValue;
-        let transactionParentElement = transactionMatchingElement.parentElement;
-        let transactionData =
-          transactionParentElement.nextElementSibling.childNodes[3];
-        let transactionNumber = transactionData.textContent;
-        /* Get the pin value */
-        const pinValueSpan = $("#ctl00_cph_txtValorPinResumen");
-        const pinValue = pinValueSpan.text();
-
-        console.log("Pay listener");
-        ipc.sendTo(1, "pinCreated", {
-          pin: pinNumber,
-          transactionNumber: transactionNumber,
-          pinValue: pinValue,
-        });
-        await logEvent(`[PAYNET] -> Información obtenida:`);
-        await logEvent(
-          `[PAYNET] ${JSON.stringify({
-            pin: pinNumber,
-            transactionNumber: transactionNumber,
-            pinValue: pinValue,
-          })}`
-        );
-
-        let parent = document.getElementById("ctl00_cph_pnlSaveVentaPin");
-        console.log(parent);
-        let ele = document.createElement("button");
-        ele.textContent = "Obtener PIN";
-        await logEvent(`[PAYNET] -> Generando botón 'Obtener PIN':`);
-        console.log(ele);
-        parent.append(ele);
-        console.log(parent);
-        ele.addEventListener("click", async (e) => {
+        /* Detect confirmation modal */
+        const confirmModal = document.querySelector("#popUpConfirmacionCompra");
+        // If the confirmation modal appears
+        if (confirmModal.style.display === "block") {
+          const msg = document.querySelector("#ctl00_cph_mensajeAceptarCompra")
+            .textContent;
+          ipc.sendTo(1, "paynetConfirm", {
+            msg,
+          });
+          confirmBtn = document.querySelector("#ctl00_cph_btnAceptarCompra");
+          cancelBtn = document.querySelector("#ctl00_cph_btnCancelarCompra");
+        } else {
+          ipc.sendTo(1, "pleaseClickPay", true);
           await logEvent(`[PAYNET] -> Obteniendo información del PIN`);
-          e.preventDefault();
+          console.log("get pin info");
           /* Get the pin number */
           const pinSpan = $("#ctl00_cph_lblCodigoPinResumen");
           const pinNumber = pinSpan.text();
@@ -238,6 +247,11 @@ const getPinInfo = async () => {
           const pinValue = pinValueSpan.text();
 
           console.log("Pay listener");
+          ipc.sendTo(1, "pinCreated", {
+            pin: pinNumber,
+            transactionNumber: transactionNumber,
+            pinValue: pinValue,
+          });
           await logEvent(`[PAYNET] -> Información obtenida:`);
           await logEvent(
             `[PAYNET] ${JSON.stringify({
@@ -246,12 +260,55 @@ const getPinInfo = async () => {
               pinValue: pinValue,
             })}`
           );
-          ipc.sendTo(1, "pinCreated", {
-            pin: pinNumber,
-            transactionNumber: transactionNumber,
-            pinValue: pinValue,
+
+          let parent = document.getElementById("ctl00_cph_pnlSaveVentaPin");
+          console.log(parent);
+          let ele = document.createElement("button");
+          ele.textContent = "Obtener PIN";
+          await logEvent(`[PAYNET] -> Generando botón 'Obtener PIN':`);
+          console.log(ele);
+          parent.append(ele);
+          console.log(parent);
+          ele.addEventListener("click", async (e) => {
+            await logEvent(`[PAYNET] -> Obteniendo información del PIN`);
+            e.preventDefault();
+            /* Get the pin number */
+            const pinSpan = $("#ctl00_cph_lblCodigoPinResumen");
+            const pinNumber = pinSpan.text();
+            /* Get the transaction number */
+            let transactionXpath = "//th[text()='Número de Transacción ']";
+            let transactionMatchingElement = document.evaluate(
+              transactionXpath,
+              document,
+              null,
+              XPathResult.FIRST_ORDERED_NODE_TYPE,
+              null
+            ).singleNodeValue;
+            let transactionParentElement =
+              transactionMatchingElement.parentElement;
+            let transactionData =
+              transactionParentElement.nextElementSibling.childNodes[3];
+            let transactionNumber = transactionData.textContent;
+            /* Get the pin value */
+            const pinValueSpan = $("#ctl00_cph_txtValorPinResumen");
+            const pinValue = pinValueSpan.text();
+
+            console.log("Pay listener");
+            await logEvent(`[PAYNET] -> Información obtenida:`);
+            await logEvent(
+              `[PAYNET] ${JSON.stringify({
+                pin: pinNumber,
+                transactionNumber: transactionNumber,
+                pinValue: pinValue,
+              })}`
+            );
+            ipc.sendTo(1, "pinCreated", {
+              pin: pinNumber,
+              transactionNumber: transactionNumber,
+              pinValue: pinValue,
+            });
           });
-        });
+        }
       }, 3000);
     });
     payBtn.click();
