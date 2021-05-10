@@ -147,15 +147,7 @@
     background: var(--primary-yellow);
 }
 
-#settings-btn img {
-    width: 40px;
-}
 
-#settings-btn {
-    position: absolute;
-    top: 10%;
-    right: 10%;
-}
 
 .login-img,
 .login-form {
