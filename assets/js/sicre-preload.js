@@ -72,12 +72,12 @@ ipc.on("enter-plate", async (event, props) => {
 });
 
 const addMakeRevisionListener = async () => {
+  console.log("addMakeRevisionListener");
   setTimeout(() => {
+    console.log("addMakeRevisionListener timeout");
     $("#ctl00_body_btnFormalizarRevision").on("click", () => {
-      setTimeout(() => {
-        logEvent(`[SICRE] Revisión finalizada`);
-        ipc.sendTo(1, "revision-finished", true);
-      }, 2000);
+      logEvent(`[SICRE] Revisión finalizada`);
+      ipc.sendTo(1, "revision-finished", true);
     });
   }, 2000);
   ipc.sendTo(1, "info-entered", true);

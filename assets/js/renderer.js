@@ -54,7 +54,6 @@ const togglePassword = (value) => {
 /* Capture navigation events */
 sicreWebview.addEventListener("did-stop-loading", (event) => {
   if (currentSicreState == "login") {
-    console.log("login");
     const username = localStorage.getItem("sicov-username");
     const password = localStorage.getItem("sicov-password");
     let bytes = CryptoJS.AES.decrypt(password, secretKey);
@@ -152,7 +151,7 @@ ipc.on("paynetConfirm", (event, props) => {
 sicreWebview.addEventListener("did-navigate", (event) => {
   console.log("did-navigate", event.url);
   if (event.url.indexOf("Default") >= 0) {
-    console.log("here");
+    console.log("indexOf Default");
     currentSicreState = "login";
   } else if (event.url.indexOf("SeleccionarSucursal") >= 0) {
     $("#status-report").removeClass("full");
@@ -292,6 +291,7 @@ const setSettings = async () => {
       localStorage.setItem("sicov-url", formValues.urlSicov);
     }
   }
+  sicovInputChange();
 };
 
 function goToRunt() {
@@ -448,10 +448,12 @@ function logout() {
       let savedSicovUrl = localStorage.getItem("sicov-url");
       let savedSyncUrl = localStorage.getItem("sync-url");
       let paynetCredentials = localStorage.getItem("paynet-credentials");
+      let savedCdaId = localStorage.getItem("id-cda");
       localStorage.clear();
       localStorage.setItem("sicov-username", sicovUsername);
       localStorage.setItem("sicov-url", savedSicovUrl);
       localStorage.setItem("sync-url", savedSyncUrl);
+      localStorage.setItem("id-cda", savedCdaId);
       localStorage.setItem("paynet-credentials", paynetCredentials);
       $("#login-container").css("display", "flex");
       $("#form-container").hide();
@@ -956,6 +958,7 @@ ipc.on("pinCreated", (event, props) => {
     cancelButtonText: "Cancelar",
   }).then(async (result) => {
     if (result.isConfirmed) {
+      let savedSicovUrl = localStorage.getItem("sicov-url");
       log.info("[PAYNET] Cerrando sesión");
       paynetWebview.send("logOut", true);
       const username = localStorage.getItem("sicov-username");
@@ -967,7 +970,10 @@ ipc.on("pinCreated", (event, props) => {
         password: descryptedPassword,
       };
       log.info("[SICRE] Iniciando sesión");
-      sicreWebview.send("start-login", data);
+      $("#sicre-webview").attr("src", savedSicovUrl);
+      setTimeout(() => {
+        sicreWebview.send("start-login", data);
+      }, 500);
       // $('#status-report').show();
       // $('#status-report').html('');
       // var statusContent = '<span>Cargando SICRE</span>';
