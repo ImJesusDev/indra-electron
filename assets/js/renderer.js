@@ -14,8 +14,33 @@ const paynetWebview = document.getElementById("paynet-webview");
 const sicreWebview = document.getElementById("sicre-webview");
 /* Crypto */
 var CryptoJS = require("crypto-js");
+/* Secret key  */
 const secretKey = "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+/* Logger */
 const log = require("electron-log");
+/* 2 Captcha package */
+const Captcha = require("2captcha");
+
+/* Function to solve captcha */
+const solveCaptcha = async () => {
+  const solver = new Captcha.Solver("860b019e20ddb8d280b303554bb1f186");
+
+  solver
+    .recaptcha(
+      "6LcPh1EUAAAAAIscNcV6Ru2ZEtoUIgvUn3pCXFcV",
+      "https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo"
+    )
+
+    .then((res) => {
+      runtWebview.send("captcha-response", res.data);
+      $("#status-report").css("display", "flex");
+      $("#status-report").addClass("full");
+      $("#status-report").html("");
+      var statusContent = "<span>Consultando información del vehículo</span>";
+      $("#status-report").append(statusContent);
+    });
+};
+
 let currentSicreState;
 let currentPaynetState;
 
@@ -302,6 +327,7 @@ function goToRunt() {
   setTimeout(() => {
     $("#initial-form").hide();
     $("#runt-webview").show();
+    solveCaptcha();
     $("html,body").scrollTop(0);
     $("#initial-step").removeClass("current").addClass("done");
     $("#runt-step").addClass("current");

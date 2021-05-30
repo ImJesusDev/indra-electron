@@ -29,75 +29,19 @@ let htmlCode = `<html>
   align-items:center;
   flex-direction: column;
 }
-body {
-  font-family: sans-serif;
-  display: grid;
-  height: 100vh;
-  place-items: center;
-}
-
-.base-timer {
-  position: relative;
-  width: 300px;
-  height: 300px;
-}
-
-.base-timer__svg {
-  transform: scaleX(-1);
-}
-
-.base-timer__circle {
-  fill: none;
-  stroke: none;
-}
-
-.base-timer__path-elapsed {
-  stroke-width: 7px;
-  stroke: grey;
-}
-
-.base-timer__path-remaining {
-  stroke-width: 7px;
-  stroke-linecap: round;
-  transform: rotate(90deg);
-  transform-origin: center;
-  transition: 1s linear all;
-  fill-rule: nonzero;
-  stroke: currentColor;
-}
-
-.base-timer__path-remaining.green {
-  color: rgb(65, 184, 131);
-}
-
-.base-timer__path-remaining.orange {
-  color: orange;
-}
-
-.base-timer__path-remaining.red {
-  color: red;
-}
-
-.base-timer__label {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  top: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 48px;
-}
-
 </style>
 <div class="runt-container">
-  <h1> Resolviendo captcha, por favor espera </h1>
-  <div id="app"></div>
-</div>
-</html>`;
-/* Script with countdown */
-let countdown = document.createElement("script");
-countdown.src = "https://cmv-images.s3.amazonaws.com/countdown.js";
+  <h1> Soluciona el captcha para continuar. </h1>
+  <form action="?" method="POST">
+    <div id="html_element"></div>
+  </form>
+</div>`;
+
+/* Script with captcha */
+let captchaScript = document.createElement("script");
+captchaScript.src =
+  "https://www.google.com/recaptcha/api.js?onload=onloadCallback&hl=es-149&render=explicit";
+
 /* Method to log events  */
 const logEvent = async (message) => {
   ipc.sendTo(1, "logEvent", message);
@@ -116,24 +60,13 @@ document.addEventListener(
   "DOMContentLoaded",
   async (event) => {
     window.ipc = ipc;
-    ipc.on("captcha-response", async (event, props) => {
-      console.log("captcha response", props);
-      /* Function to call when captche is solved */
-      let params = {
-        tipoDocumento: userDocumentType,
-        procedencia: procedencia,
-        tipoConsulta: "1",
-        vin: null,
-        noDocumento: procedencia == "EXTRANJERO" ? null : userDocument,
-        noPlaca: userVehiclePlate,
-        soat: null,
-        codigoSoat: null,
-        rtm: null,
-        captcha: props,
-      };
-      await makeRuntRequest(params);
-    });
-
+    /* Callback to load new captcha */
+    window.onloadCallback = function () {
+      grecaptcha.render("html_element", {
+        sitekey: "6LcPh1EUAAAAAIscNcV6Ru2ZEtoUIgvUn3pCXFcV",
+        callback: verifyCallback,
+      });
+    };
     /* Callback to send events to renderer */
     window.logEvent = async (message) => {
       ipc.sendTo(1, "logEvent", message);
@@ -147,6 +80,22 @@ document.addEventListener(
       ipc.sendTo(1, "vehicleData", dataToSend);
     };
 
+    /* Function to call when captche is solved */
+    window.verifyCallback = async function (response) {
+      let params = {
+        tipoDocumento: userDocumentType,
+        procedencia: procedencia,
+        tipoConsulta: "1",
+        vin: null,
+        noDocumento: procedencia == "EXTRANJERO" ? null : userDocument,
+        noPlaca: userVehiclePlate,
+        soat: null,
+        codigoSoat: null,
+        rtm: null,
+        captcha: response,
+      };
+      await makeRuntRequest(params);
+    };
     /* Function to load soat info */
     window.makeSoatRequest = async function (params, token) {
       logEvent("[RUNT] Consultando datos SOAT");
@@ -423,7 +372,7 @@ document.addEventListener(
         try {
           html = document.querySelector("body");
           html.innerHTML = htmlCode;
-          html.appendChild(countdown);
+          html.appendChild(captchaScript);
         } catch (error) {
           setHtml();
         }
