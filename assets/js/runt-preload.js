@@ -12,6 +12,42 @@ const urlBlindaje =
   "https://www.runt.com.co/consultaCiudadana/publico/automotores/blindaje";
 const urlCertificaciones =
   "https://www.runt.com.co/consultaCiudadana/publico/automotores/rtms";
+
+/* Countdown settings */
+const FULL_DASH_ARRAY = 283;
+const WARNING_THRESHOLD = 10;
+const ALERT_THRESHOLD = 5;
+
+const formatTime = (time) => {
+  const minutes = Math.floor(time / 60);
+  let seconds = time % 60;
+
+  if (seconds < 10) {
+    seconds = `0${seconds}`;
+  }
+
+  return `${minutes}:${seconds}`;
+};
+
+const COLOR_CODES = {
+  info: {
+    color: "green",
+  },
+  warning: {
+    color: "orange",
+    threshold: WARNING_THRESHOLD,
+  },
+  alert: {
+    color: "red",
+    threshold: ALERT_THRESHOLD,
+  },
+};
+
+const TIME_LIMIT = 30;
+let timePassed = 0;
+let timeLeft = TIME_LIMIT;
+let timerInterval = null;
+let remainingPathColor = COLOR_CODES.info.color;
 /* Initialize received values */
 let userDocument;
 let userVehiclePlate;
@@ -25,7 +61,7 @@ let htmlCode = `<html>
 .runt-container {
   display:flex;
   height: calc(100vh - 130px);
-  justify-content: center;
+  justify-content: flex-start;
   align-items:center;
   flex-direction: column;
 }
@@ -91,13 +127,38 @@ body {
 
 </style>
 <div class="runt-container">
+<!--
   <h1> Resolviendo captcha, por favor espera </h1>
-  <div id="app"></div>
+  <p> Tiempo de espera aproximado: 30 segundos </p>
+  <div id="app">
+  <div class="base-timer">
+        <svg class="base-timer__svg" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+          <g class="base-timer__circle">
+            <circle class="base-timer__path-elapsed" cx="50" cy="50" r="45"></circle>
+            <path
+              id="base-timer-path-remaining"
+              stroke-dasharray="283"
+              class="base-timer__path-remaining ${remainingPathColor}"
+              d="
+                M 50, 50
+                m -45, 0
+                a 45,45 0 1,0 90,0
+                a 45,45 0 1,0 -90,0
+              "
+            ></path>
+          </g>
+        </svg>
+        <span id="base-timer-label" class="base-timer__label">${formatTime(
+          timeLeft
+        )}</span>
+      </div></div>
+      -->
 </div>
 </html>`;
 /* Script with countdown */
 let countdown = document.createElement("script");
-countdown.src = "https://cmv-images.s3.amazonaws.com/countdown.js";
+countdown.src =
+  "https://raw.githubusercontent.com/ImJesusDev/indra-electron/develop/assets/js/countdown.js";
 /* Method to log events  */
 const logEvent = async (message) => {
   ipc.sendTo(1, "logEvent", message);
@@ -116,6 +177,73 @@ document.addEventListener(
   "DOMContentLoaded",
   async (event) => {
     window.ipc = ipc;
+
+    window.onTimesUp = () => {
+      clearInterval(timerInterval);
+    };
+
+    window.startTimer = () => {
+      timerInterval = setInterval(() => {
+        timePassed = timePassed += 1;
+        timeLeft = TIME_LIMIT - timePassed;
+        document.getElementById("base-timer-label").innerHTML =
+          formatTime(timeLeft);
+        setCircleDasharray();
+        setRemainingPathColor(timeLeft);
+
+        if (timeLeft === 0) {
+          onTimesUp();
+          timePassed = 0;
+          timeLeft = TIME_LIMIT;
+          startTimer();
+        }
+      }, 1000);
+    };
+
+    window.formatTime = (time) => {
+      const minutes = Math.floor(time / 60);
+      let seconds = time % 60;
+
+      if (seconds < 10) {
+        seconds = `0${seconds}`;
+      }
+
+      return `${minutes}:${seconds}`;
+    };
+
+    window.setRemainingPathColor = (timeLeft) => {
+      const { alert, warning, info } = COLOR_CODES;
+      if (timeLeft <= alert.threshold) {
+        document
+          .getElementById("base-timer-path-remaining")
+          .classList.remove(warning.color);
+        document
+          .getElementById("base-timer-path-remaining")
+          .classList.add(alert.color);
+      } else if (timeLeft <= warning.threshold) {
+        document
+          .getElementById("base-timer-path-remaining")
+          .classList.remove(info.color);
+        document
+          .getElementById("base-timer-path-remaining")
+          .classList.add(warning.color);
+      }
+    };
+
+    window.calculateTimeFraction = () => {
+      const rawTimeFraction = timeLeft / TIME_LIMIT;
+      return rawTimeFraction - (1 / TIME_LIMIT) * (1 - rawTimeFraction);
+    };
+
+    window.setCircleDasharray = () => {
+      const circleDasharray = `${(
+        calculateTimeFraction() * FULL_DASH_ARRAY
+      ).toFixed(0)} 283`;
+      document
+        .getElementById("base-timer-path-remaining")
+        .setAttribute("stroke-dasharray", circleDasharray);
+    };
+
     ipc.on("captcha-response", async (event, props) => {
       console.log("captcha response", props);
       /* Function to call when captche is solved */
@@ -423,13 +551,14 @@ document.addEventListener(
         try {
           html = document.querySelector("body");
           html.innerHTML = htmlCode;
-          html.appendChild(countdown);
+          // html.appendChild(countdown);
         } catch (error) {
           setHtml();
         }
       }, 100);
     };
     setHtml();
+    startTimer();
   },
   false
 );

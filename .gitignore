@@ -2,3 +2,4 @@ node_modules
 release-builds
 electron-builder.yml
 dist
+.env

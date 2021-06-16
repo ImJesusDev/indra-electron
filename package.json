@@ -2,7 +2,7 @@
     "name": "Indra",
     "version": "1.1.26",
     "description": "Electron project",
-    "main": "main.js",
+    "main": "index.js",
     "repository": {
         "type": "git",
         "url": "https://github.com/ImJesusDev/indra-electron.git"
@@ -10,20 +10,21 @@
     "scripts": {
         "start": "electron .",
         "package-win": "electron-packager . --overwrite --asar=true --platform=win32 --arch=ia32  --prune=true  --publish never --out=release-builds --version-string.CompanyName=Movers --version-string.FileDescription=Runt-Integration --version-string.ProductName=\"Runt Integration\"",
-        "publish-win": "electron-builder build --win --publish always",
-        "build": "electron-builder build --win"
+        "publish-win": "electron-builder build --win --ia32 --x64 --publish always",
+        "build": "electron-builder build --win --x64"
     },
     "author": "",
     "license": "ISC",
     "devDependencies": {
-        "electron": "^10.1.2",
-        "electron-builder": "^22.9.1",
+        "electron": "^10.4.7",
+        "electron-builder": "^22.11.5",
         "electron-packager": "^15.1.0"
     },
     "dependencies": {
-        "2captcha": "^2.1.7",
+        "@antiadmin/anticaptchaofficial": "^1.0.14",
         "axios": "^0.21.1",
         "crypto-js": "^4.0.0",
+        "dotenv": "^10.0.0",
         "electron-log": "^4.3.2",
         "electron-updater": "^4.3.5",
         "moment": "^2.29.1",

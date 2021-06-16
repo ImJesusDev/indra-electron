@@ -15,90 +15,60 @@ const sicreWebview = document.getElementById("sicre-webview");
 /* Crypto */
 var CryptoJS = require("crypto-js");
 /* Secret key  */
-const secretKey = "SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
-const antiCaptchaApiKey = "50bb0b32a8cee2c946b633b8d4cc73aa";
-const captchaSiteKey = "6LcPh1EUAAAAAIscNcV6Ru2ZEtoUIgvUn3pCXFcV";
-let timer;
+const secretKey = process.env.SECRET_KEY;
+const antiCaptchaApiKey = process.env.ANTI_CAPTCHA_API_KEY;
+const captchaSiteKey = process.env.CAPTCHA_SITE_KEY;
+let runtResponse;
+let timeInterval;
 /* Logger */
 const log = require("electron-log");
 /* 2 Captcha package */
 // const Captcha = require("2captcha");
-const messages = [
-  "Ingresando al RUNT",
-  "Ingresando a consulta ciudadana ",
-  "Completando formulario del RUNT",
-  "Seleccionando la opción 'No soy un robot'",
-  "Solucionando Captcha ",
-  "Ingresando a los datos del vehículo ",
-  "Consultando información de interés ",
-  "Completando información ",
-];
-let currentMessage = 0;
 const ac = require("@antiadmin/anticaptchaofficial");
 ac.setAPIKey(antiCaptchaApiKey);
 ac.getBalance()
   .then((balance) => console.log("my balance is $" + balance))
   .catch((error) => console.log("received error " + error));
-
-const stopTimer = () => {
-  console.log("clear timer");
-  clearInterval(timer);
-};
 /* Function to solve captcha */
 const solveCaptcha = async () => {
-  stopTimer();
-  currentMessage = 0;
-  $("#status-report").css("display", "flex");
-  $("#status-report").addClass("full");
-  $("#status-report").html("");
-  var statusContent = `<span>${messages[currentMessage]}</span>`;
-  $("#status-report").append(statusContent);
-  currentMessage++;
-  timer = setInterval(() => {
-    if (currentMessage === messages.length) {
-      stopTimer();
-      Swal.fire({
-        title: "Error en consulta, por favor intente de nuevo",
-        icon: "warning",
-        showCancelButton: false,
-        showDenyButton: false,
-        confirmButtonColor: "#79c5b4",
-        confirmButtonText: "Aceptar",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          resetForm();
-          // sicreWebview.send("logOut", true);
-          $("#initial-form").css("display", "flex");
-          $("#status-report").html("");
-          $("#status-report").hide();
-          $("#progress-bar").show();
-          $("#failed-revisions").hide();
-          $("#runt-webview").hide();
-          $("#runt-step").removeClass("current");
-          $("#initial-step").addClass("current").removeClass("done");
-        }
-      });
-    } else {
-      $("#status-report").html("");
-      var statusContent = `<span>${messages[currentMessage]}</span>`;
-      $("#status-report").append(statusContent);
-      currentMessage++;
-    }
-  }, 5000);
+  timeInterval = setInterval(() => {
+    console.log("unlock screen");
+  }, 30000);
+  runtResponse = null;
   log.info("Enviando solicitud captcha");
   ac.solveRecaptchaV2Proxyless(
     "https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo",
     captchaSiteKey
   )
     .then((gresponse) => {
-      stopTimer();
+      clearInterval(timeInterval);
       log.info("Respuesta servicio captcha");
       log.info(gresponse);
       runtWebview.send("captcha-response", gresponse);
+      // $("#status-report").css("display", "flex");
+      // $("#status-report").addClass("full");
+      // $("#status-report").html("");
+      // var statusContent = "<span>Consultando información del vehículo</span>";
+      // $("#status-report").append(statusContent);
     })
     .catch((error) => {
+      clearInterval(timeInterval);
       console.log("test received error " + error);
     });
+  // const solver = new Captcha.Solver("860b019e20ddb8d280b303554bb1f186");
+  // solver
+  //   .recaptcha(
+  //     "6LcPh1EUAAAAAIscNcV6Ru2ZEtoUIgvUn3pCXFcV",
+  //     "https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo"
+  //   )
+  //   .then((res) => {
+  //     runtWebview.send("captcha-response", res.data);
+  //     $("#status-report").css("display", "flex");
+  //     $("#status-report").addClass("full");
+  //     $("#status-report").html("");
+  //     var statusContent = "<span>Consultando información del vehículo</span>";
+  //     $("#status-report").append(statusContent);
+  //   });
 };
 
 let currentSicreState;
@@ -191,7 +161,9 @@ ipc.on("reload", (event, props) => {
   showInitialForm();
 });
 ipc.on("info-entered", (event, props) => {
-  $("#status-report").removeClass("full");
+  if (runtResponse) {
+    $("#status-report").removeClass("full");
+  }
   $("#status-report").html("");
   var statusContent =
     '<span>Verifica la información y da clic en "Formalizar revisión"</span>';
@@ -199,11 +171,12 @@ ipc.on("info-entered", (event, props) => {
   $("#status-report").css("display", "flex");
 });
 ipc.on("pleaseClickPay", (event, props) => {
+  console.log("please click pay");
   $("#status-report").html("");
   var statusContent = "<span>Finalizando...</span>";
   $("#status-report").append(statusContent);
-  $("#status-report").css("display", "flex");
-  $("#status-report").addClass("full");
+  // $("#status-report").css("display", "flex");
+  // $("#status-report").addClass("full");
 });
 
 ipc.on("paynetLoginError", (event, props) => {
@@ -251,6 +224,7 @@ sicreWebview.addEventListener("did-navigate", (event) => {
     var statusContent = "<span>Ingresando Información!</span>";
     $("#status-report").append(statusContent);
     $("#status-report").css("display", "flex");
+    $("#status-report").addClass("full");
     sicreWebview.send("input-form-data", true);
   } else if (event.url.indexOf("FormalizacionRevision") >= 0) {
     if (currentSicreState !== "plate-entered") {
@@ -379,18 +353,26 @@ const setSettings = async () => {
   sicovInputChange();
 };
 
-function goToRunt() {
+async function goToRunt() {
   $("#runt-webview").attr(
     "src",
     "https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo"
   );
-  setTimeout(() => {
-    $("#initial-form").hide();
-    $("#runt-webview").show();
+  setTimeout(async () => {
     solveCaptcha();
+    $("#initial-form").hide();
+    $("#paynet-webview").show();
+    $("#status-report").css("display", "flex");
+    $("#status-report").addClass("full");
+    $("#status-report").html("");
+    var statusContent = "<span>Cargando Paynet</span>";
+    $("#status-report").append(statusContent);
     $("html,body").scrollTop(0);
+    $("#runt-step").removeClass("current").addClass("done");
+    $("#paynet-step").addClass("current");
+    // solveCaptcha();
     $("#initial-step").removeClass("current").addClass("done");
-    $("#runt-step").addClass("current");
+    $("#paynet-step").addClass("current");
     /* Store the value of the selected vehicle type */
     const plate = $("#vehicle-plate").val();
     const foreignVehicle = $(
@@ -402,13 +384,16 @@ function goToRunt() {
     const cellphone = $("#cellphone");
     const revisionType = $("#revision-type");
     const vehicleType = $("#vehicle-type-select");
+    const vehicleModel = $("#vehicle-model");
     localStorage.setItem("vehicle-type", vehicleType.val());
     localStorage.setItem("foreign-vehicle", foreignVehicle.val());
     localStorage.setItem("plate", plate.toUpperCase());
     localStorage.setItem("document-number", documentNumber.val());
     localStorage.setItem("document-type", documentType.val());
+    localStorage.setItem("vehicle-model", vehicleModel.val());
     localStorage.setItem("cellphone", cellphone.val());
     localStorage.setItem("revision-type", revisionType.val());
+    await checkPaynetCredentials();
     const formData = {
       plate: plate.toUpperCase(),
       documentType: documentType.val(),
@@ -482,6 +467,7 @@ function validateFields() {
 
 function initialFormChange() {
   const plate = $("#vehicle-plate");
+  const model = $("#vehicle-model");
   const documentNumber = $("#document-number");
   const documentType = $("#document-type");
   const cellphone = $("#cellphone");
@@ -504,6 +490,7 @@ function initialFormChange() {
   }
   if (
     plate.val() &&
+    model.val() &&
     documentNumber.val() &&
     cellphone.val() &&
     documentType.val() &&
@@ -567,6 +554,11 @@ function logout() {
 }
 
 function showForm() {
+  $("#status-report").html("");
+  var statusContent = "<span>Iniciando Sesión</span>";
+  $("#status-report").append(statusContent);
+  $("#status-report").css("display", "flex");
+  $("#status-report").addClass("full");
   const sicovUsername = $("#sicov-username");
   const sicovPassword = $("#sicov-password");
   let savedSicovUrl = localStorage.getItem("sicov-url");
@@ -574,7 +566,8 @@ function showForm() {
   formData = new FormData();
   formData.append("username", sicovUsername.val());
   formData.append("password", sicovPassword.val());
-
+  $("#status-report").html("");
+  $("#status-report").hide();
   $("#login-container").hide();
   $("#form-container").css("display", "flex");
   /* Store the value of the selected vehicle type */
@@ -727,6 +720,7 @@ function showSicov() {
 
 function resetForm() {
   $("#vehicle-plate").val("");
+  $("#vehicle-model").val("");
   $("#document-number").val("");
   $("#cellphone").val("");
   $("#document-type").val("");
@@ -735,6 +729,7 @@ function resetForm() {
 }
 
 function showInitialForm() {
+  runtWebview.send("newRequest", true);
   resetForm();
   log.info("Cerrando sesión SICOV");
   // sicreWebview.send("logOut", true);
@@ -995,6 +990,56 @@ ipc.on("revision-finished", (event, props) => {
   $("#initial-step").addClass("current").removeClass("done");
   $("#sicre-webview").hide();
   $("#initial-form").show();
+  // if (runtResponse) {
+  //   Swal.fire({
+  //     title: "¡Información obtenida!",
+  //     text: "Se ha consultado la información correctamente. ¿Desea continuar a Paynet?",
+  //     icon: "success",
+  //     html: `
+  //           <ul>
+  //               <li> Marca: ${runtResponse.data.make} </li>
+  //               <li> Modelo: ${runtResponse.data.model} </li>
+  //               <li> Color: ${runtResponse.data.color}</li>
+  //               <li> Línea:${runtResponse.data.line} </li>
+  //               <li> Licencia:${runtResponse.data.license} </li>
+  //               <li> Estado del vehículo: ${runtResponse.data.state}</li>
+  //               <li> Estado Soat: ${runtResponse.data.soat.state} </li>
+  //               <li> Fecha fin de vigencia Soat: ${
+  //                 runtResponse.data.soat.date
+  //               } </li>
+  //               <li> Último certificado: ${
+  //                 runtResponse.data.certifications.type
+  //               } </li>
+  //               <li style="${
+  //                 runtResponse.data.certifications.active == "NO"
+  //                   ? "color:red;"
+  //                   : ""
+  //               }" > Vigente: ${runtResponse.data.certifications.active} </li>
+  //               <li> Fecha vigencia: ${
+  //                 runtResponse.data.certifications.expiration
+  //               } </li>
+  //               <li> Última solicitud: ${
+  //                 runtResponse.data.lastRequest.type
+  //               }</li>
+  //               <li> Estado última solicitud: ${
+  //                 runtResponse.data.lastRequest.lastRequestState
+  //               }</li>
+  //               <li> Entidad última solicitud: ${
+  //                 runtResponse.data.lastRequest.lastRequestEntity
+  //               }</li>
+  //               <li> Fecha última solicitud: ${
+  //                 runtResponse.data.lastRequest.lastRequestDate
+  //               }</li>
+  //           </ul>
+  //           `,
+  //     showCancelButton: true,
+  //     confirmButtonColor: "#79c5b4",
+  //     cancelButtonColor: "#e88aa2",
+  //     confirmButtonText: "Continua en Paynet",
+  //     cancelButtonText: "Cancelar",
+  //   });
+  // }
+
   resetForm();
 });
 
@@ -1121,98 +1166,97 @@ ipc.on("nextPressed", (event, props) => {
 });
 
 ipc.on("vehicleData", (event, props) => {
-  if (props.type === "vehicleInfo") {
-    // $("#status-report").css("display", "flex");
-    // $("#status-report").addClass("full");
-    // $("#status-report").html("");
-    // var statusContent = "<span>Consultando información del vehículo</span>";
-    localStorage.setItem("vehicle-model", props.data.model);
-    // $("#status-report").append(statusContent);
-  }
-  if (props.type === "otherInfo") {
-    // $("#status-report").html("");
-    // var statusContent = "<span>Consultando información adicional</span>";
-    // $("#status-report").append(statusContent);
-  }
+  // if (props.type === "vehicleInfo") {
+  //   $("#status-report").css("display", "flex");
+  //   $("#status-report").addClass("full");
+  //   $("#status-report").html("");
+  //   var statusContent = "<span>Consultando información del vehículo</span>";
+  //   localStorage.setItem("vehicle-model", props.data.model);
+  //   $("#status-report").append(statusContent);
+  // }
+  // if (props.type === "otherInfo") {
+  //   $("#status-report").html("");
+  //   var statusContent = "<span>Consultando información adicional</span>";
+  //   $("#status-report").append(statusContent);
+  // }
 
   if (props.type === "done") {
     console.log("done", props);
+    runtResponse = props;
     submitData(props.data);
     localStorage.setItem("license", props.data.license);
     localStorage.setItem("vehicleClass", props.data.vehicleClass);
     localStorage.setItem("technicalData", props.data.technicalData);
     setTimeout(async () => {
       // console.log('inside async', props);
-      $("#status-report").html("");
-      $("#status-report").hide();
-      Swal.fire({
-        title: "¡Información obtenida!",
-        text: "Se ha consultado la información correctamente. ¿Desea continuar a Paynet?",
-        icon: "success",
-        html: `
-                <ul>
-                    <li> Marca: ${props.data.make} </li>
-                    <li> Modelo: ${props.data.model} </li>
-                    <li> Color: ${props.data.color}</li>
-                    <li> Línea:${props.data.line} </li>
-                    <li> Licencia:${props.data.license} </li>
-                    <li> Estado del vehículo: ${props.data.state}</li>
-                    <li> Estado Soat: ${props.data.soat.state} </li>
-                    <li> Fecha fin de vigencia Soat: ${
-                      props.data.soat.date
-                    } </li>
-                    <li> Último certificado: ${
-                      props.data.certifications.type
-                    } </li>
-                    <li style="${
-                      props.data.certifications.active == "NO"
-                        ? "color:red;"
-                        : ""
-                    }" > Vigente: ${props.data.certifications.active} </li>
-                    <li> Fecha vigencia: ${
-                      props.data.certifications.expiration
-                    } </li>
-                    <li> Última solicitud: ${props.data.lastRequest.type}</li>
-                    <li> Estado última solicitud: ${
-                      props.data.lastRequest.lastRequestState
-                    }</li>
-                    <li> Entidad última solicitud: ${
-                      props.data.lastRequest.lastRequestEntity
-                    }</li>
-                    <li> Fecha última solicitud: ${
-                      props.data.lastRequest.lastRequestDate
-                    }</li>
-                </ul>
-                `,
-        showCancelButton: true,
-        confirmButtonColor: "#79c5b4",
-        cancelButtonColor: "#e88aa2",
-        confirmButtonText: "Continua en Paynet",
-        cancelButtonText: "Cancelar",
-      }).then(async (result) => {
-        if (result.isConfirmed) {
-          // paynetWebview.send('navigate-to-pin', true);
-          await checkPaynetCredentials();
-          // $('#runt-webview').attr('src', 'https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo');
-          $("#status-report").css("display", "flex");
-          $("#status-report").addClass("full");
-          $("#status-report").html("");
-          var statusContent = "<span>Cargando Paynet</span>";
-          $("#status-report").append(statusContent);
-          $("#runt-webview").hide();
-          $("#paynet-webview").show();
-          $("html,body").scrollTop(0);
-          $("#runt-step").removeClass("current").addClass("done");
-          $("#paynet-step").addClass("current");
-          log.info("[RUNT] Recargando RUNT");
-          runtWebview.send("newRequest", true);
-          log.info("[RUNT] Redireccionando a  Paynet");
-
-          // await sendVehicleData();
-        } else {
-          showInitialForm();
-        }
-      });
+      // $("#status-report").html("");
+      // $("#status-report").hide();
+      // Swal.fire({
+      //   title: "¡Información obtenida!",
+      //   text: "Se ha consultado la información correctamente. ¿Desea continuar a Paynet?",
+      //   icon: "success",
+      //   html: `
+      //           <ul>
+      //               <li> Marca: ${props.data.make} </li>
+      //               <li> Modelo: ${props.data.model} </li>
+      //               <li> Color: ${props.data.color}</li>
+      //               <li> Línea:${props.data.line} </li>
+      //               <li> Licencia:${props.data.license} </li>
+      //               <li> Estado del vehículo: ${props.data.state}</li>
+      //               <li> Estado Soat: ${props.data.soat.state} </li>
+      //               <li> Fecha fin de vigencia Soat: ${
+      //                 props.data.soat.date
+      //               } </li>
+      //               <li> Último certificado: ${
+      //                 props.data.certifications.type
+      //               } </li>
+      //               <li style="${
+      //                 props.data.certifications.active == "NO"
+      //                   ? "color:red;"
+      //                   : ""
+      //               }" > Vigente: ${props.data.certifications.active} </li>
+      //               <li> Fecha vigencia: ${
+      //                 props.data.certifications.expiration
+      //               } </li>
+      //               <li> Última solicitud: ${props.data.lastRequest.type}</li>
+      //               <li> Estado última solicitud: ${
+      //                 props.data.lastRequest.lastRequestState
+      //               }</li>
+      //               <li> Entidad última solicitud: ${
+      //                 props.data.lastRequest.lastRequestEntity
+      //               }</li>
+      //               <li> Fecha última solicitud: ${
+      //                 props.data.lastRequest.lastRequestDate
+      //               }</li>
+      //           </ul>
+      //           `,
+      //   showCancelButton: true,
+      //   confirmButtonColor: "#79c5b4",
+      //   cancelButtonColor: "#e88aa2",
+      //   confirmButtonText: "Continua en Paynet",
+      //   cancelButtonText: "Cancelar",
+      // });
+      // .then(async (result) => {
+      //   if (result.isConfirmed) {
+      //     // paynetWebview.send('navigate-to-pin', true);
+      //     await checkPaynetCredentials();
+      //     // $('#runt-webview').attr('src', 'https://www.runt.com.co/consultaCiudadana/#/consultaVehiculo');
+      //     $("#status-report").css("display", "flex");
+      //     $("#status-report").addClass("full");
+      //     $("#status-report").html("");
+      //     var statusContent = "<span>Cargando Paynet</span>";
+      //     $("#status-report").append(statusContent);
+      //     $("#runt-webview").hide();
+      //     $("#paynet-webview").show();
+      //     $("html,body").scrollTop(0);
+      //     $("#runt-step").removeClass("current").addClass("done");
+      //     $("#paynet-step").addClass("current");
+      //     log.info("[RUNT] Recargando RUNT");
+      //     runtWebview.send("newRequest", true);
+      //     log.info("[RUNT] Redireccionando a  Paynet");
+      //     // await sendVehicleData();
+      //   }
+      // });
     }, 1500);
   }
 
