@@ -178,22 +178,6 @@ document.addEventListener(
   async (event) => {
     window.ipc = ipc;
 
-    ipc.on("imgCaptcha", async (event, props) => {
-      let params = {
-        tipoDocumento: userDocumentType,
-        procedencia: procedencia,
-        tipoConsulta: "1",
-        vin: null,
-        noDocumento: procedencia == "EXTRANJERO" ? null : userDocument,
-        noPlaca: userVehiclePlate,
-        soat: null,
-        codigoSoat: null,
-        rtm: null,
-        captcha: props,
-      };
-      await makeRuntRequest(params);
-    })
-
     window.onTimesUp = () => {
       clearInterval(timerInterval);
     };
@@ -573,8 +557,8 @@ document.addEventListener(
         }
       }, 100);
     };
-    // setHtml();
-    // startTimer();
+    setHtml();
+    startTimer();
   },
   false
 );
