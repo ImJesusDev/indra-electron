@@ -1,10 +1,16 @@
+/**
+ * MAIN RENDERER PROCESS
+ *
+ * NOTE: Some unused code is intentionally left as a comment
+ * to keep as reference
+ */
+
 /* IPC */
 const { ipcRenderer: ipc } = require("electron");
 /* Alerts */
 const Swal = require("sweetalert2");
 /* Axios */
 const axios = require("axios");
-
 const moment = require("moment");
 /* Runt */
 const runtWebview = document.getElementById("runt-webview");
@@ -325,22 +331,25 @@ const setSettings = async () => {
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="url-sicov">
                         Url SICOV
                     </label>
-                    <input value="${savedSicovUrl ? savedSicovUrl : ""
-      }" required id="url-sicov" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Url SICOV">
+                    <input value="${
+                      savedSicovUrl ? savedSicovUrl : ""
+                    }" required id="url-sicov" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline" type="text" placeholder="Url SICOV">
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="sync-url">
                         Url de sincronización
                     </label>
-                    <input value="${savedSyncUrl ? savedSyncUrl : ""
-      }" required id="sync-url" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"  type="text" placeholder="Url de sincronización">
+                    <input value="${
+                      savedSyncUrl ? savedSyncUrl : ""
+                    }" required id="sync-url" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"  type="text" placeholder="Url de sincronización">
                 </div>
                 <div class="mb-6">
                     <label class="block text-gray-700 text-sm font-bold mb-2" for="id-cda">
                         Id del CDA
                     </label>
-                    <input value="${savedCdaId ? savedCdaId : ""
-      }" required id="id-cda" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"  type="text" placeholder="Identificador del CDA">
+                    <input value="${
+                      savedCdaId ? savedCdaId : ""
+                    }" required id="id-cda" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none focus:shadow-outline"  type="text" placeholder="Identificador del CDA">
                 </div>
             </form>
         </div>`,
@@ -372,10 +381,9 @@ const setSettings = async () => {
 };
 
 const askForCaptcha = async () => {
-
   const { value: formValues } = await Swal.fire({
     title: "Por favor, ingresa el texto de la imagen",
-    position: 'top-end',
+    position: "top-end",
     backdrop: false,
     html: `
                         <div class="w-full">
@@ -437,8 +445,6 @@ const askForCaptcha = async () => {
       }
     }, 20000);
   }
-
-
 };
 
 function goToRunt() {
@@ -480,8 +486,6 @@ function goToRunt() {
     };
     runtWebview.send("runt-form-data", formData);
     await askForCaptcha();
-
-
   }, 1000);
 }
 
@@ -1225,23 +1229,30 @@ ipc.on("vehicleData", (event, props) => {
                     <li> Licencia:${props.data.license} </li>
                     <li> Estado del vehículo: ${props.data.state}</li>
                     <li> Estado Soat: ${props.data.soat.state} </li>
-                    <li> Fecha fin de vigencia Soat: ${props.data.soat.date
-          } </li>
-                    <li> Último certificado: ${props.data.certifications.type
-          } </li>
-                    <li style="${props.data.certifications.active == "NO"
-            ? "color:red;"
-            : ""
-          }" > Vigente: ${props.data.certifications.active} </li>
-                    <li> Fecha vigencia: ${props.data.certifications.expiration
-          } </li>
+                    <li> Fecha fin de vigencia Soat: ${
+                      props.data.soat.date
+                    } </li>
+                    <li> Último certificado: ${
+                      props.data.certifications.type
+                    } </li>
+                    <li style="${
+                      props.data.certifications.active == "NO"
+                        ? "color:red;"
+                        : ""
+                    }" > Vigente: ${props.data.certifications.active} </li>
+                    <li> Fecha vigencia: ${
+                      props.data.certifications.expiration
+                    } </li>
                     <li> Última solicitud: ${props.data.lastRequest.type}</li>
-                    <li> Estado última solicitud: ${props.data.lastRequest.lastRequestState
-          }</li>
-                    <li> Entidad última solicitud: ${props.data.lastRequest.lastRequestEntity
-          }</li>
-                    <li> Fecha última solicitud: ${props.data.lastRequest.lastRequestDate
-          }</li>
+                    <li> Estado última solicitud: ${
+                      props.data.lastRequest.lastRequestState
+                    }</li>
+                    <li> Entidad última solicitud: ${
+                      props.data.lastRequest.lastRequestEntity
+                    }</li>
+                    <li> Fecha última solicitud: ${
+                      props.data.lastRequest.lastRequestDate
+                    }</li>
                 </ul>
                 `,
         showCancelButton: true,

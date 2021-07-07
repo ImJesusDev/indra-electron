@@ -76,27 +76,7 @@ function createWindow() {
 
   win.loadFile("index.html");
   win.maximize();
-  // win.removeMenu();
   win.show();
-
-  // win.webContents.openDevTools();
-  // 5f2a1c2b932b2a2ab0296c126802c7f4
-  //NIT
-  //8301081162
-  //PLACA
-  // BCD396
-
-  //HKQ558
-  //51914792
-  //123123123
-  //Paynet2021*
-  //ultraconcept
-  //Ultraconcept123*
-  // Extranjero: AF190CM
-  // QrH#e*Is
-
-  // SZV02E
-  // 80069756
 }
 
 app
@@ -105,13 +85,6 @@ app
   .then(() => {
     console.log("Checking for updates");
     autoUpdater.checkForUpdatesAndNotify();
-    // session.defaultSession.webRequest.onBeforeSendHeaders(
-    //   filter,
-    //   (details, callback) => {
-    //     console.log(details.url);
-    //     callback(details);
-    //   }
-    // );
   });
 
 app.on("window-all-closed", () => {
