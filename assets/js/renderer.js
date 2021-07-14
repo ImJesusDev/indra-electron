@@ -1045,27 +1045,33 @@ ipc.on("logEvent", (event, props) => {
 });
 
 ipc.on("revision-finished", (event, props) => {
-  console.log("finished");
-  // sicreWebview.send("logOut", true);
-  let savedSicovUrl = localStorage.getItem("sicov-url");
-  $("#sicre-webview").attr("src", savedSicovUrl);
-  paynetWebview.send("logOut", true);
-  $("#status-report").css("display", "flex");
   $("#status-report").html("");
-  var statusContent = "<span>¡Formalizacion realizada!</span>";
+  var statusContent = "<span>Cerrando sesión</span>";
   $("#status-report").append(statusContent);
   setTimeout(() => {
-    $("#status-report").html("");
-    $("#status-report").hide();
-  }, 3000);
-  // let url = localStorage.getItem('sicre-url');
-  // $('#sicre-webview').attr('src', url);
-  $("#paynet-step").removeClass("done");
-  $("#runt-step").removeClass("done");
-  $("#initial-step").addClass("current").removeClass("done");
-  $("#sicre-webview").hide();
-  $("#initial-form").show();
-  resetForm();
+    sicreWebview.send("logOut", true);
+    setTimeout(() => {
+      let savedSicovUrl = localStorage.getItem("sicov-url");
+      // $("#sicre-webview").attr("src", savedSicovUrl);
+      paynetWebview.send("logOut", true);
+      $("#status-report").css("display", "flex");
+      $("#status-report").html("");
+      var statusContent = "<span>¡Formalizacion realizada!</span>";
+      $("#status-report").append(statusContent);
+      setTimeout(() => {
+        $("#status-report").html("");
+        $("#status-report").hide();
+      }, 3000);
+      // let url = localStorage.getItem('sicre-url');
+      // $('#sicre-webview').attr('src', url);
+      $("#paynet-step").removeClass("done");
+      $("#runt-step").removeClass("done");
+      $("#initial-step").addClass("current").removeClass("done");
+      $("#sicre-webview").hide();
+      $("#initial-form").show();
+      resetForm();
+    }, 4000);
+  }, 4000);
 });
 
 // ipc.on('runtFormData', (event, props) => {
@@ -1119,7 +1125,6 @@ ipc.on("pinCreated", (event, props) => {
         password: descryptedPassword,
       };
       log.info("[SICRE] Iniciando sesión");
-      $("#sicre-webview").attr("src", savedSicovUrl);
       setTimeout(() => {
         sicreWebview.send("start-login", data);
       }, 500);
@@ -1135,6 +1140,9 @@ ipc.on("pinCreated", (event, props) => {
       $("#paynet-webview").hide();
       // $('#paynet-webview').attr('src', 'https://indra.paynet.com.co:14443/InformacionSeguridad.aspx');
       $("#sicre-webview").show();
+      setTimeout(() => {
+        $("#sicre-webview").attr("src", savedSicovUrl);
+      }, 300);
       $("html,body").scrollTop(0);
       $("#paynet-step").removeClass("current").addClass("done");
       $("#sicre-step").addClass("current");

@@ -214,8 +214,9 @@ const getPinInfo = async () => {
         const confirmModal = document.querySelector("#popUpConfirmacionCompra");
         // If the confirmation modal appears
         if (confirmModal.style.display === "block") {
-          const msg = document.querySelector("#ctl00_cph_mensajeAceptarCompra")
-            .textContent;
+          const msg = document.querySelector(
+            "#ctl00_cph_mensajeAceptarCompra"
+          ).textContent;
           ipc.sendTo(1, "paynetConfirm", {
             msg,
           });
@@ -227,7 +228,7 @@ const getPinInfo = async () => {
           console.log("get pin info");
           /* Get the pin number */
           const pinSpan = $("#ctl00_cph_lblCodigoPinResumen");
-          const pinNumber = pinSpan.text();
+          const pinNumber = pinSpan.text().trim();
           /* Get the transaction number */
           let transactionXpath = "//th[text()='Número de Transacción ']";
           let transactionMatchingElement = document.evaluate(

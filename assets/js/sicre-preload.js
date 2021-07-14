@@ -52,7 +52,7 @@ ipc.on("input-form-data", async (event, props) => {
   await setForeignVehicle(foreignVehicleVal);
   await setCategory(category);
   await setRevisionType(revisionType);
-  await checkPin();
+  // await checkPin();
   await addMakeRevisionListener();
 });
 ipc.on("enter-plate", async (event, props) => {
