@@ -149,8 +149,8 @@ body {
           </g>
         </svg>
         <span id="base-timer-label" class="base-timer__label">${formatTime(
-  timeLeft
-)}</span>
+          timeLeft
+        )}</span>
       </div></div>
       -->
 </div>
@@ -192,7 +192,7 @@ document.addEventListener(
         captcha: props,
       };
       await makeRuntRequest(params);
-    })
+    });
 
     window.onTimesUp = () => {
       clearInterval(timerInterval);
@@ -428,9 +428,11 @@ document.addEventListener(
       let replacedResponse = solicitudResponse.data.replace(")]}'", "");
       let parsedResponse = JSON.parse(replacedResponse);
       logEvent(`[RUNT] Respuesta: ${JSON.stringify(parsedResponse)}`);
+      console.log("parsedResponse.data", parsedResponse.data);
 
       let type = "No hay trámites de revisión tecnicomecánica";
       for (const tramite of parsedResponse.data) {
+        console.log("tramite", tramite);
         if (
           tramite.tramitesRealizados == "Tramite revision tecnico mecanica, "
         ) {
@@ -438,6 +440,7 @@ document.addEventListener(
           lastRequestState = tramite.estado;
           lastRequestEntity = tramite.entidad;
           lastRequestDate = tramite.fechaSolicitud;
+          break;
         }
       }
       return { lastRequestState, lastRequestEntity, lastRequestDate, type };

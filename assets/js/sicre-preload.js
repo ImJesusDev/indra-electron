@@ -54,6 +54,7 @@ ipc.on("input-form-data", async (event, props) => {
   await setRevisionType(revisionType);
   // await checkPin();
   await addMakeRevisionListener();
+  await addCheckPinListener();
 });
 ipc.on("enter-plate", async (event, props) => {
   const username = localStorage.getItem("username");
@@ -74,13 +75,21 @@ ipc.on("enter-plate", async (event, props) => {
 const addMakeRevisionListener = async () => {
   console.log("addMakeRevisionListener");
   setTimeout(() => {
-    console.log("addMakeRevisionListener timeout");
     $("#ctl00_body_btnFormalizarRevision").on("click", () => {
       logEvent(`[SICRE] Revisión finalizada`);
       ipc.sendTo(1, "revision-finished", true);
     });
   }, 2000);
   ipc.sendTo(1, "info-entered", true);
+};
+const addCheckPinListener = async () => {
+  console.log("addMakeRevisionListener");
+  setTimeout(() => {
+    $("#ctl00_body_btnConsultarPIN").on("click", async () => {
+      console.log("[Click] Btn consultar pin");
+      await addMakeRevisionListener();
+    });
+  }, 2000);
 };
 
 const setPin = async (pin) => {

@@ -275,7 +275,7 @@ const getPinInfo = async () => {
             e.preventDefault();
             /* Get the pin number */
             const pinSpan = $("#ctl00_cph_lblCodigoPinResumen");
-            const pinNumber = pinSpan.text();
+            const pinNumber = pinSpan.text().trim();
             /* Get the transaction number */
             let transactionXpath = "//th[text()='Número de Transacción ']";
             let transactionMatchingElement = document.evaluate(

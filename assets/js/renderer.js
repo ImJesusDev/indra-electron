@@ -245,13 +245,13 @@ sicreWebview.addEventListener("did-navigate", (event) => {
     var statusContent =
       "<span>Selecciona la sucursal a la cual pertenezcas</span>";
     $("#status-report").append(statusContent);
-    $("#status-report").css("display", "flex");
+    $("#status-report").show();
     sicreWebview.send("sucursal-selection", true);
   } else if (event.url.indexOf("?Placa") >= 0) {
     $("#status-report").html("");
     var statusContent = "<span>Ingresando Información!</span>";
     $("#status-report").append(statusContent);
-    $("#status-report").css("display", "flex");
+    $("#status-report").show();
     sicreWebview.send("input-form-data", true);
   } else if (event.url.indexOf("FormalizacionRevision") >= 0) {
     if (currentSicreState !== "plate-entered") {
@@ -807,7 +807,7 @@ function resetForm() {
 function showInitialForm() {
   resetForm();
   log.info("Cerrando sesión SICOV");
-  // sicreWebview.send("logOut", true);
+  sicreWebview.send("logOut", true);
   let savedSicovUrl = localStorage.getItem("sicov-url");
   paynetWebview.send("logOut", true);
   log.info("Cerrando sesión PAYNET");
@@ -1045,6 +1045,7 @@ ipc.on("logEvent", (event, props) => {
 });
 
 ipc.on("revision-finished", (event, props) => {
+  currentSicreState = "login";
   $("#status-report").html("");
   var statusContent = "<span>Cerrando sesión</span>";
   $("#status-report").append(statusContent);
@@ -1070,8 +1071,8 @@ ipc.on("revision-finished", (event, props) => {
       $("#sicre-webview").hide();
       $("#initial-form").show();
       resetForm();
-    }, 4000);
-  }, 4000);
+    }, 6000);
+  }, 8000);
 });
 
 // ipc.on('runtFormData', (event, props) => {
@@ -1124,10 +1125,6 @@ ipc.on("pinCreated", (event, props) => {
         username: username,
         password: descryptedPassword,
       };
-      log.info("[SICRE] Iniciando sesión");
-      setTimeout(() => {
-        sicreWebview.send("start-login", data);
-      }, 500);
       // $('#status-report').show();
       // $('#status-report').html('');
       // var statusContent = '<span>Cargando SICRE</span>';
@@ -1143,6 +1140,10 @@ ipc.on("pinCreated", (event, props) => {
       setTimeout(() => {
         $("#sicre-webview").attr("src", savedSicovUrl);
       }, 300);
+      log.info("[SICRE] Iniciando sesión");
+      setTimeout(() => {
+        sicreWebview.send("start-login", data);
+      }, 3000);
       $("html,body").scrollTop(0);
       $("#paynet-step").removeClass("current").addClass("done");
       $("#sicre-step").addClass("current");
