@@ -1,6 +1,7 @@
 require("dotenv").config();
+
 const { app, BrowserWindow, ipcMain, Menu, BrowserView } = require("electron");
-const { autoUpdater } = require("electron-updater");
+const { NsisUpdater } = require("electron-updater");
 const { session } = require("electron");
 const userAgent =
   "Mozilla/5.0 (Macintosh; Intel Mac OS X 11_2_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/14.0.3 Safari/605.1.15";
@@ -10,6 +11,16 @@ const filter = {
   urls: ["https://*/*"],
 };
 let win;
+
+const autoUpdater = new NsisUpdater({
+  provider: 's3',
+  bucket: 'sicre-sicov',
+  region: 'us-east-1',
+  storageClass: 'STANDARD',
+  channel: 'latest',
+  path: '/sicov/latest/'
+})
+
 const isMac = process.platform === "darwin";
 const template = [
   // { role: 'fileMenu' }

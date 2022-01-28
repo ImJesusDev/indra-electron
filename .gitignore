@@ -3,3 +3,4 @@ release-builds
 electron-builder.yml
 dist
 .env
+tags
